@@ -1,7 +1,6 @@
 """
 | sudoku module to create and solve 9x9 sudoku puzzle
 """
-import turtle
 from random import randint, shuffle
 from time import sleep
 

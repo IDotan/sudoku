@@ -38,3 +38,18 @@ def test_find_square():
         for j in range(9):
             temp.append(i+1)
         assert sudoku.find_square(grid, squares[i][0], squares[i][1]) == temp
+
+
+def test_find_column():
+    grid =[]
+    for i in range(9):
+        temp = []
+        for j in range(9):
+            temp.append(j + 1)
+        grid.append(temp)
+
+    for col in range(9):
+        test_col = []
+        for i in range(9):
+            test_col.append(col + 1)
+        assert sudoku.find_column(grid, col) == test_col
