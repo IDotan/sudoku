@@ -113,6 +113,8 @@ def find_duplicate(lst):
     :param lst: list to check
     :return: True when there is duplicates in the list
     """
+    if len(lst) == 0:
+        return False
     temp_lst = []
     for i in lst:
         if i != 0:
@@ -145,7 +147,7 @@ def fill_grid(grid):
     """
     | recursive function to fill the sudoku puzzle
     :param grid: the sudoku to fill
-    :return: True when full, full grid
+    :return: True when full, full grid. None when there is no solution
     """
     number_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     row, col = 0, 0
