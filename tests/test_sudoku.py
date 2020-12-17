@@ -41,7 +41,7 @@ def test_find_square():
 
 
 def test_find_column():
-    grid =[]
+    grid = []
     for i in range(9):
         temp = []
         for j in range(9):

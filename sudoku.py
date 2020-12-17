@@ -2,8 +2,8 @@
 | sudoku module to create and solve 9x9 sudoku puzzle
 """
 from random import randint, shuffle
-from time import sleep
 
+# global used in solve_grid() to check there is only 1 solution
 global counter
 
 
@@ -77,23 +77,23 @@ def find_column(grid, col):
     return num_in_col
 
 
-# A backtracking/recursive function to check all possible combinations of numbers until a solution is found
 def solve_grid(grid):
+    """
+    | recursive function to check if the sudoku board is solvable
+    :param grid: the sudoku to solve
+    :return: True when solvable
+    """
     global counter
-    # Find next empty cell
     row, col = 0, 0
     for i in range(0, 81):
         row = i // 9
         col = i % 9
         if grid[row][col] == 0:
             for value in range(1, 10):
-                # Check that this value has not already been used on this row
                 if not (value in grid[row]):
-                    # Check that this value has not already be used on this column
                     num_in_column = find_column(grid, col)
                     if value not in num_in_column:
                         square = find_square(grid, row, col)
-                        # Check that this value has not already be used on this 3x3 square
                         if value not in square:
                             grid[row][col] = value
                             if check_grid(grid):
@@ -141,24 +141,24 @@ def check_no_duplicates(grid):
     return True
 
 
-# A backtracking/recursive function to check all possible combinations of numbers until a solution is found
 def fill_grid(grid):
+    """
+    | recursive function to fill the sudoku puzzle
+    :param grid: the sudoku to fill
+    :return: True when full, full grid
+    """
     number_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     row, col = 0, 0
-    # Find next empty cell
     for i in range(0, 81):
         row = i // 9
         col = i % 9
         if grid[row][col] == 0:
             shuffle(number_list)
             for value in number_list:
-                # Check that this value has not already been used on this row
                 if not (value in grid[row]):
-                    # Check that this value has not already be used on this column
                     num_in_column = find_column(grid, col)
                     if value not in num_in_column:
                         square = find_square(grid, row, col)
-                        # Check that this value has not already be used on this 3x3 square
                         if value not in square:
                             grid[row][col] = value
                             if check_grid(grid):
@@ -172,6 +172,11 @@ def fill_grid(grid):
 
 
 def remove_numbers(grid):
+    """
+    | remove numbers from a sudoku board one by one to create a new sudoku puzzle with only one solution
+    :param grid: sudoku board to remove numbers from
+    :return: sudoku grid
+    """
     attempts = 5
     global counter
     while attempts > 0:
@@ -195,13 +200,21 @@ def remove_numbers(grid):
     return grid
 
 
-def new_board(grid):
+def new_board():
+    """
+    | create random full sudoku grid
+    :return: sudoku grid
+    """
+    grid = create_board()
     full_grid = fill_grid(grid)[1]
-    sleep(1)
     return full_grid
 
 
 def print_board_console(grid):
+    """
+    | print sudoku grid to the console
+    :param grid: the sudoku grid to print
+    """
     for i in range(9):
         temp_line = str(grid[i])[1:-1]
         temp_line = temp_line.replace(',', '')
@@ -213,8 +226,7 @@ def print_board_console(grid):
 
 
 def startup():
-    grid = create_board()
-    full_grid = new_board(grid)
+    full_grid = new_board()
     print_board_console(full_grid)
 
     print("Sudoku Grid Ready")
@@ -242,8 +254,9 @@ def unsolvable_try(grid=None):
 
 if __name__ == "__main__":
     unsolvable_try()
+    print()
     startup()
-
+    print()
     temp = [
         [0, 0, 0, 4, 9, 7, 6, 0, 5],
         [0, 0, 6, 3, 0, 8, 0, 0, 0],
