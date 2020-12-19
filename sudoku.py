@@ -115,13 +115,15 @@ def modular_solve_after_remove(grid, size, number_of_squares):
     return True
 
 
-def remove_numbers(grid):
+def remove_numbers(grid, size, number_of_squares, attempts=5):
     """
     | remove numbers from a sudoku board one by one to create a new sudoku puzzle with only one solution
     :param grid: sudoku board to remove numbers from
+    :param size: the sudoku row and column length (9/16...)
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
+    :param attempts: number of attempts to remove numbers. default 5
     :return: sudoku grid
     """
-    attempts = 5
     global counter
     while attempts > 0:
         # Select a random cell that is not already empty
@@ -136,7 +138,7 @@ def remove_numbers(grid):
 
         # Count the number of solutions
         counter = 0
-        modular_solve_after_remove(grid, 9, 3)
+        modular_solve_after_remove(grid, size, number_of_squares)
         # solve_grid(grid)
         # If there is more then 1 solution revert back the change to the board
         if counter != 1:
@@ -232,7 +234,7 @@ def print_board_console(grid):
         temp_line = temp_line.replace(',', '')
         print_line = f"{temp_line[0:6]}|{temp_line[6:12]}|{temp_line[12:18]}"
         print(print_line)
-        if i in (2, 5, 8):
+        if i in (2, 5):
             line_break = f'{"-" * 6}|{"-" * 6}|{"-" * 6}'
             print(line_break)
 
@@ -260,50 +262,58 @@ def startup():
     print("Sudoku Grid Ready")
 
     # remove num from board
-    grid_to_solve = remove_numbers(full_grid)
+    grid_to_solve = remove_numbers(full_grid, 9, 3)
     print_board_console(grid_to_solve)
 
 
 if __name__ == "__main__":
-    # unsolvable_try()
-    # print()
-    # startup()
-    # print()
-    # temp = [
-    #     [0, 0, 0, 4, 9, 7, 6, 0, 5],
-    #     [0, 0, 6, 3, 0, 8, 0, 0, 0],
-    #     [0, 7, 0, 0, 0, 0, 0, 1, 0],
-    #     [0, 3, 0, 9, 0, 0, 8, 4, 0],
-    #     [6, 0, 0, 0, 3, 0, 0, 0, 0],
-    #     [0, 4, 2, 0, 0, 0, 9, 3, 1],
-    #     [0, 5, 0, 0, 8, 0, 7, 9, 2],
-    #     [0, 8, 0, 7, 5, 3, 1, 6, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 8, 3]
-    # ]
-    # # unsolvable_try(temp)
-    # temp = modular_solve(temp, 9, 3)
-    # if temp is False:
-    #     print('unsolvable')
-    # else:
-    #     print_board_console(temp)
+    unsolvable_try()
+    print()
+    startup()
+    print()
     temp = [
-        [2, 0, 0, 0, 0, 6, 0, 0, 0, 15, 0, 0, 0, 13, 0, 14],
-        [0, 0, 15, 0, 0, 0, 0, 0, 4, 0, 0, 14, 5, 0, 0, 0],
-        [8, 0, 0, 5, 1, 0, 0, 12, 0, 13, 0, 0, 4, 0, 7, 0],
-        [0, 12, 6, 4, 3, 9, 7, 0, 0, 8, 0, 5, 15, 11, 0, 0],
-        [0, 13, 0, 15, 0, 8, 5, 7, 6, 0, 9, 0, 10, 12, 0, 0],
-        [0, 0, 0, 0, 6, 0, 0, 1, 0, 14, 0, 7, 16, 0, 0, 4],
-        [5, 0, 7, 14, 0, 12, 9, 0, 0, 11, 0, 8, 3, 0, 0, 0],
-        [0, 11, 0, 0, 15, 0, 0, 10, 3, 0, 12, 1, 0, 9, 0, 0],
-        [0, 0, 9, 0, 4, 5, 0, 8, 13, 0, 0, 10, 0, 0, 16, 0],
-        [0, 0, 0, 8, 13, 0, 1, 0, 0, 12, 16, 0, 14, 10, 0, 15],
-        [10, 0, 0, 2, 12, 0, 15, 0, 9, 0, 0, 3, 0, 0, 0, 0],
-        [0, 0, 13, 7, 0, 2, 0, 3, 1, 4, 15, 0, 8, 0, 9, 0],
-        [0, 0, 4, 9, 7, 0, 6, 0, 0, 10, 5, 11, 12, 3, 1, 0],
-        [0, 10, 0, 3, 0, 0, 14, 0, 2, 0, 0, 15, 13, 0, 0, 9],
-        [0, 0, 0, 13, 10, 0, 0, 2, 0, 0, 0, 0, 0, 15, 0, 0],
-        [7, 0, 11, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0, 0, 0, 10]
+        [0, 0, 0, 4, 9, 7, 6, 0, 5],
+        [0, 0, 6, 3, 0, 8, 0, 0, 0],
+        [0, 7, 0, 0, 0, 0, 0, 1, 0],
+        [0, 3, 0, 9, 0, 0, 8, 4, 0],
+        [6, 0, 0, 0, 3, 0, 0, 0, 0],
+        [0, 4, 2, 0, 0, 0, 9, 3, 1],
+        [0, 5, 0, 0, 8, 0, 7, 9, 2],
+        [0, 8, 0, 7, 5, 3, 1, 6, 0],
+        [0, 0, 0, 0, 0, 0, 0, 8, 3]
     ]
-    modular_solve(temp, 16, 4)
-    for this in temp:
-        print(this)
+    # unsolvable_try(temp)
+    temp = modular_solve(temp, 9, 3)
+    if temp is False:
+        print('unsolvable')
+    else:
+        print_board_console(temp)
+    # temp = [
+    #     [2, 0, 0, 0, 0, 6, 0, 0, 0, 15, 0, 0, 0, 13, 0, 14],
+    #     [0, 0, 15, 0, 0, 0, 0, 0, 4, 0, 0, 14, 5, 0, 0, 0],
+    #     [8, 0, 0, 5, 1, 0, 0, 12, 0, 13, 0, 0, 4, 0, 7, 0],
+    #     [0, 12, 6, 4, 3, 9, 7, 0, 0, 8, 0, 5, 15, 11, 0, 0],
+    #     [0, 13, 0, 15, 0, 8, 5, 7, 6, 0, 9, 0, 10, 12, 0, 0],
+    #     [0, 0, 0, 0, 6, 0, 0, 1, 0, 14, 0, 7, 16, 0, 0, 4],
+    #     [5, 0, 7, 14, 0, 12, 9, 0, 0, 11, 0, 8, 3, 0, 0, 0],
+    #     [0, 11, 0, 0, 15, 0, 0, 10, 3, 0, 12, 1, 0, 9, 0, 0],
+    #     [0, 0, 9, 0, 4, 5, 0, 8, 13, 0, 0, 10, 0, 0, 16, 0],
+    #     [0, 0, 0, 8, 13, 0, 1, 0, 0, 12, 16, 0, 14, 10, 0, 15],
+    #     [10, 0, 0, 2, 12, 0, 15, 0, 9, 0, 0, 3, 0, 0, 0, 0],
+    #     [0, 0, 13, 7, 0, 2, 0, 3, 1, 4, 15, 0, 8, 0, 9, 0],
+    #     [0, 0, 4, 9, 7, 0, 6, 0, 0, 10, 5, 11, 12, 3, 1, 0],
+    #     [0, 10, 0, 3, 0, 0, 14, 0, 2, 0, 0, 15, 13, 0, 0, 9],
+    #     [0, 0, 0, 13, 10, 0, 0, 2, 0, 0, 0, 0, 0, 15, 0, 0],
+    #     [7, 0, 11, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0, 0, 0, 10]
+    # ]
+    # modular_solve(temp, 16, 4)
+    # for this in temp:
+    #     print(this)
+    # temp = create_board(16)
+    # modular_solve(temp, 16, 4)
+    # for this in temp:
+    #     print(this)
+    # print("empty:")
+    # remove_numbers(temp, 16, 4, 10)
+    # for this in temp:
+    #     print(this)

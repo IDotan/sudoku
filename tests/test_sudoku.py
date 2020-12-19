@@ -199,7 +199,7 @@ def test_remove_numbers():
         [2, 8, 9, 7, 5, 3, 1, 6, 4],
         [1, 6, 7, 2, 4, 9, 5, 8, 3]
     ]
-    check = sudoku.remove_numbers(check)
+    check = sudoku.remove_numbers(check, 9, 3)
     assert check != grid
 
 
