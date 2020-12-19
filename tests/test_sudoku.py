@@ -2,13 +2,13 @@ import sudoku
 
 
 def test_create_board():
-    grid = sudoku.create_board()
+    grid = sudoku.create_board(9)
     for i in range(9):
         assert grid[i] == [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
 def test_check_grid_full():
-    grid = sudoku.create_board()
+    grid = sudoku.create_board(9)
     assert sudoku.check_grid(grid) is False
 
     grid = []

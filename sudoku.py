@@ -7,14 +7,18 @@ from random import randint, shuffle
 global counter
 
 
-def create_board():
+def create_board(size):
     """
-    | initialise empty 9 by 9 grid
-    :return: 9x9 grid filled with 0 in every position
+    | initialise empty sudoku grid
+    :var size: size of the grid to make
+    :return: grid filled with 0 in every position
     """
     grid = []
-    for i in range(9):
-        grid.append([0, 0, 0, 0, 0, 0, 0, 0, 0])
+    for i in range(size):
+        row = []
+        for j in range(size):
+            row.append(0)
+        grid.append(row)
     return grid
 
 
@@ -160,6 +164,30 @@ def fill_grid(grid):
     grid[row][col] = 0
 
 
+def modular_solve_after_remove(grid, size, number_of_squares):
+    """
+    | fill given sudoku board
+    :param grid: grid to try to solve
+    :param size: the sudoku row and column length (9/16...)
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
+    :return:
+    """
+    global counter
+    for row in range(size):
+        for col in range(size):
+            if grid[row][col] == 0:
+                for value in range(1, size + 1):
+                    if modular_is_possible(grid, row, col, value, number_of_squares):
+                        grid[row][col] = value
+                        if modular_solve_after_remove(grid, size, number_of_squares):
+                            counter += 1
+                            grid[row][col] = 0
+                            break
+                        grid[row][col] = 0
+                return False
+    return True
+
+
 def remove_numbers(grid):
     """
     | remove numbers from a sudoku board one by one to create a new sudoku puzzle with only one solution
@@ -181,7 +209,8 @@ def remove_numbers(grid):
 
         # Count the number of solutions
         counter = 0
-        solve_grid(grid)
+        modular_solve_after_remove(grid, 9, 3)
+        # solve_grid(grid)
         # If there is more then 1 solution revert back the change to the board
         if counter != 1:
             grid[row][col] = backup
@@ -194,7 +223,7 @@ def new_board():
     | create random full sudoku grid
     :return: sudoku grid
     """
-    grid = create_board()
+    grid = create_board(9)
     full_grid = fill_grid(grid)[1]
     return full_grid
 
@@ -269,21 +298,38 @@ def modular_is_possible(grid, row, col, value, number_of_squares):
     return True
 
 
-def modular_solve(grid, size, number_of_squares):
+def random_num_list(size):
+    """
+    | create random list of numbers to use
+    :param size: the max number to be in the list
+    :return: random list of numbers from 1 to (size)
+    """
+    num_list = []
+    for num in range(1, size + 1):
+        num_list.append(num)
+    shuffle(num_list)
+    return num_list
+
+
+def modular_solve(grid, size, number_of_squares, num_list=None):
     """
     | solve given sudoku board
     :param grid: grid to try to solve
     :param size: the sudoku row and column length (9/16...)
     :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
+    :param num_list: possible numbers on the board. default None
     :return: grid when solved, False when there is no solution
     """
+    if num_list is None:
+        num_list = random_num_list(size)
+
     for row in range(size):
         for col in range(size):
             if grid[row][col] == 0:
-                for value in range(1, 10):
+                for value in num_list:
                     if modular_is_possible(grid, row, col, value, number_of_squares):
                         grid[row][col] = value
-                        if modular_solve(grid, size, number_of_squares):
+                        if modular_solve(grid, size, number_of_squares, num_list):
                             return grid
                         grid[row][col] = 0
                 return False
@@ -293,22 +339,22 @@ def modular_solve(grid, size, number_of_squares):
 if __name__ == "__main__":
     # unsolvable_try()
     # print()
-    # startup()
+    startup()
     # print()
-    temp = [
-        [0, 0, 0, 4, 9, 7, 6, 0, 5],
-        [0, 0, 6, 3, 0, 8, 0, 0, 0],
-        [0, 7, 0, 0, 0, 0, 0, 1, 0],
-        [0, 3, 0, 9, 0, 0, 8, 4, 0],
-        [6, 0, 0, 0, 3, 0, 0, 0, 0],
-        [0, 4, 2, 0, 0, 0, 9, 3, 1],
-        [0, 5, 0, 0, 8, 0, 7, 9, 2],
-        [0, 8, 0, 7, 5, 3, 1, 6, 0],
-        [0, 0, 0, 0, 0, 0, 0, 8, 3]
-    ]
+    # temp = [
+    #     [0, 0, 0, 4, 9, 7, 6, 0, 5],
+    #     [0, 0, 6, 3, 0, 8, 0, 0, 0],
+    #     [0, 7, 0, 0, 0, 0, 0, 1, 0],
+    #     [0, 3, 0, 9, 0, 0, 8, 4, 0],
+    #     [6, 0, 0, 0, 3, 0, 0, 0, 0],
+    #     [0, 4, 2, 0, 0, 0, 9, 3, 1],
+    #     [0, 5, 0, 0, 8, 0, 7, 9, 2],
+    #     [0, 8, 0, 7, 5, 3, 1, 6, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 8, 3]
+    # ]
     # unsolvable_try(temp)
-    temp = modular_solve(temp, 9, 3)
-    if temp is False:
-        print('unsolvable')
-    else:
-        print_board_console(temp)
+    # temp = modular_solve(temp, 9, 3)
+    # if temp is False:
+    #     print('unsolvable')
+    # else:
+    #     print_board_console(temp)
