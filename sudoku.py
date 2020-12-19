@@ -104,7 +104,7 @@ def modular_solve_after_remove(grid, size, number_of_squares):
         for col in range(size):
             if grid[row][col] == 0:
                 for value in range(1, size + 1):
-                    if modular_is_possible(grid, row, col, value, number_of_squares):
+                    if modular_is_possible(grid, row, col, value, size, number_of_squares):
                         grid[row][col] = value
                         if modular_solve_after_remove(grid, size, number_of_squares):
                             counter += 1
@@ -145,17 +145,18 @@ def remove_numbers(grid):
     return grid
 
 
-def modular_is_possible(grid, row, col, value, number_of_squares):
+def modular_is_possible(grid, row, col, value, size, number_of_squares):
     """
     | check if a given value is possible in the given sudoku grid
     :param grid: grid to check
     :param row: row position
     :param col: column position
     :param value: value to check if possible
+    :param size: the sudoku row and column length (9/16...)
     :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
     :return: True when possible value
     """
-    for i in range(9):
+    for i in range(size):
         # check the value is not in the row
         if grid[row][i] == value:
             return False
@@ -202,7 +203,7 @@ def modular_solve(grid, size, number_of_squares, num_list=None):
         for col in range(size):
             if grid[row][col] == 0:
                 for value in num_list:
-                    if modular_is_possible(grid, row, col, value, number_of_squares):
+                    if modular_is_possible(grid, row, col, value, size, number_of_squares):
                         grid[row][col] = value
                         if modular_solve(grid, size, number_of_squares, num_list):
                             return grid
@@ -264,24 +265,45 @@ def startup():
 
 
 if __name__ == "__main__":
-    unsolvable_try()
-    print()
-    startup()
-    print()
+    # unsolvable_try()
+    # print()
+    # startup()
+    # print()
+    # temp = [
+    #     [0, 0, 0, 4, 9, 7, 6, 0, 5],
+    #     [0, 0, 6, 3, 0, 8, 0, 0, 0],
+    #     [0, 7, 0, 0, 0, 0, 0, 1, 0],
+    #     [0, 3, 0, 9, 0, 0, 8, 4, 0],
+    #     [6, 0, 0, 0, 3, 0, 0, 0, 0],
+    #     [0, 4, 2, 0, 0, 0, 9, 3, 1],
+    #     [0, 5, 0, 0, 8, 0, 7, 9, 2],
+    #     [0, 8, 0, 7, 5, 3, 1, 6, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 8, 3]
+    # ]
+    # # unsolvable_try(temp)
+    # temp = modular_solve(temp, 9, 3)
+    # if temp is False:
+    #     print('unsolvable')
+    # else:
+    #     print_board_console(temp)
     temp = [
-        [0, 0, 0, 4, 9, 7, 6, 0, 5],
-        [0, 0, 6, 3, 0, 8, 0, 0, 0],
-        [0, 7, 0, 0, 0, 0, 0, 1, 0],
-        [0, 3, 0, 9, 0, 0, 8, 4, 0],
-        [6, 0, 0, 0, 3, 0, 0, 0, 0],
-        [0, 4, 2, 0, 0, 0, 9, 3, 1],
-        [0, 5, 0, 0, 8, 0, 7, 9, 2],
-        [0, 8, 0, 7, 5, 3, 1, 6, 0],
-        [0, 0, 0, 0, 0, 0, 0, 8, 3]
+        [2, 0, 0, 0, 0, 6, 0, 0, 0, 15, 0, 0, 0, 13, 0, 14],
+        [0, 0, 15, 0, 0, 0, 0, 0, 4, 0, 0, 14, 5, 0, 0, 0],
+        [8, 0, 0, 5, 1, 0, 0, 12, 0, 13, 0, 0, 4, 0, 7, 0],
+        [0, 12, 6, 4, 3, 9, 7, 0, 0, 8, 0, 5, 15, 11, 0, 0],
+        [0, 13, 0, 15, 0, 8, 5, 7, 6, 0, 9, 0, 10, 12, 0, 0],
+        [0, 0, 0, 0, 6, 0, 0, 1, 0, 14, 0, 7, 16, 0, 0, 4],
+        [5, 0, 7, 14, 0, 12, 9, 0, 0, 11, 0, 8, 3, 0, 0, 0],
+        [0, 11, 0, 0, 15, 0, 0, 10, 3, 0, 12, 1, 0, 9, 0, 0],
+        [0, 0, 9, 0, 4, 5, 0, 8, 13, 0, 0, 10, 0, 0, 16, 0],
+        [0, 0, 0, 8, 13, 0, 1, 0, 0, 12, 16, 0, 14, 10, 0, 15],
+        [10, 0, 0, 2, 12, 0, 15, 0, 9, 0, 0, 3, 0, 0, 0, 0],
+        [0, 0, 13, 7, 0, 2, 0, 3, 1, 4, 15, 0, 8, 0, 9, 0],
+        [0, 0, 4, 9, 7, 0, 6, 0, 0, 10, 5, 11, 12, 3, 1, 0],
+        [0, 10, 0, 3, 0, 0, 14, 0, 2, 0, 0, 15, 13, 0, 0, 9],
+        [0, 0, 0, 13, 10, 0, 0, 2, 0, 0, 0, 0, 0, 15, 0, 0],
+        [7, 0, 11, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0, 0, 0, 10]
     ]
-    # unsolvable_try(temp)
-    temp = modular_solve(temp, 9, 3)
-    if temp is False:
-        print('unsolvable')
-    else:
-        print_board_console(temp)
+    modular_solve(temp, 16, 4)
+    for this in temp:
+        print(this)
