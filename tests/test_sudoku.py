@@ -176,6 +176,21 @@ def test_fill_grid_no_solution():
     assert sudoku.fill_grid(grid) is None
 
 
+def test_fill_grid_duplicates():
+    grid = [
+        [0, 0, 0, 4, 9, 7, 6, 0, 5],
+        [0, 0, 6, 3, 0, 8, 0, 0, 0],
+        [6, 7, 0, 0, 0, 0, 0, 1, 0],
+        [0, 3, 0, 9, 0, 0, 8, 4, 0],
+        [6, 0, 0, 0, 3, 0, 0, 0, 0],
+        [0, 4, 2, 0, 0, 0, 9, 3, 1],
+        [0, 5, 0, 0, 8, 0, 7, 9, 2],
+        [0, 8, 0, 7, 5, 3, 1, 6, 0],
+        [0, 0, 0, 0, 0, 0, 0, 8, 3]
+    ]
+    assert sudoku.fill_grid(grid) is None
+
+
 def test_remove_numbers():
     grid = [
         [3, 1, 8, 4, 9, 7, 6, 2, 5],

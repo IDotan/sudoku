@@ -39,28 +39,15 @@ def find_square(grid, row, col):
     :param col: the column to find which square it's in
     :return: list of num in the square
     """
-    if row < 3:
-        if col < 3:
-            square = [grid[i][0:3] for i in range(0, 3)]
-        elif col < 6:
-            square = [grid[i][3:6] for i in range(0, 3)]
-        else:
-            square = [grid[i][6:9] for i in range(0, 3)]
-    elif row < 6:
-        if col < 3:
-            square = [grid[i][0:3] for i in range(3, 6)]
-        elif col < 6:
-            square = [grid[i][3:6] for i in range(3, 6)]
-        else:
-            square = [grid[i][6:9] for i in range(3, 6)]
-    else:
-        if col < 3:
-            square = [grid[i][0:3] for i in range(6, 9)]
-        elif col < 6:
-            square = [grid[i][3:6] for i in range(6, 9)]
-        else:
-            square = [grid[i][6:9] for i in range(6, 9)]
-    square_list = square[0] + square[1] + square[2]
+    # floor division to find the square out of the 3 possible for the length and the width
+    # multiply by 3 to get the starting position for the square in the grid
+    square_row = (row//3) * 3
+    square_col = (col//3) * 3
+    square_list = []
+    for i in range(3):
+        for j in range(3):
+            # go over each col for every row and add the num to the list
+            square_list.append(grid[square_row + i][square_col + j])
     return square_list
 
 
@@ -254,11 +241,60 @@ def unsolvable_try(grid=None):
         print('unsolvable-duplicates')
 
 
+def modular_is_possible(grid, row, col, value, number_of_squares):
+    """
+    | check if a given value is possible in the given sudoku grid
+    :param grid: grid to check
+    :param row: row position
+    :param col: column position
+    :param value: value to check if possible
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
+    :return: True when possible value
+    """
+    for i in range(9):
+        # check the value is not in the row
+        if grid[row][i] == value:
+            return False
+        # check the value is not in the column
+        if grid[i][col] == value:
+            return False
+    # floor division to find the square out of the given (number_of_squares)
+    # multiply by (number_of_squares) to get the starting position for the square in the grid
+    square_row = (row // number_of_squares) * number_of_squares
+    square_col = (col // number_of_squares) * number_of_squares
+    for i in range(number_of_squares):
+        for j in range(number_of_squares):
+            if grid[square_row + i][square_col + j] == value:
+                return False
+    return True
+
+
+def modular_solve(grid, size, number_of_squares):
+    """
+    | solve given sudoku board
+    :param grid: grid to try to solve
+    :param size: the sudoku row and column length (9/16...)
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
+    :return: grid when solved, False when there is no solution
+    """
+    for row in range(size):
+        for col in range(size):
+            if grid[row][col] == 0:
+                for value in range(1, 10):
+                    if modular_is_possible(grid, row, col, value, number_of_squares):
+                        grid[row][col] = value
+                        if modular_solve(grid, size, number_of_squares):
+                            return grid
+                        grid[row][col] = 0
+                return False
+    return True
+
+
 if __name__ == "__main__":
-    unsolvable_try()
-    print()
-    startup()
-    print()
+    # unsolvable_try()
+    # print()
+    # startup()
+    # print()
     temp = [
         [0, 0, 0, 4, 9, 7, 6, 0, 5],
         [0, 0, 6, 3, 0, 8, 0, 0, 0],
@@ -270,4 +306,9 @@ if __name__ == "__main__":
         [0, 8, 0, 7, 5, 3, 1, 6, 0],
         [0, 0, 0, 0, 0, 0, 0, 8, 3]
     ]
-    unsolvable_try(temp)
+    # unsolvable_try(temp)
+    temp = modular_solve(temp, 9, 3)
+    if temp is False:
+        print('unsolvable')
+    else:
+        print_board_console(temp)
