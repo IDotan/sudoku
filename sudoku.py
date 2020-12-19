@@ -3,7 +3,7 @@
 """
 from random import randint, shuffle
 
-# global used in solve_grid() to check there is only 1 solution
+# global used in modular_solve_after_remove() and remove_numbers() to check there is only 1 solution
 global counter
 
 
@@ -20,19 +20,6 @@ def create_board(size):
             row.append(0)
         grid.append(row)
     return grid
-
-
-def check_grid(grid):
-    """
-    | A function to check if the grid is full
-    :param grid: the grid to check
-    :return: True when the grid is full with num which are not 0
-    """
-    for row in range(0, 9):
-        for col in range(0, 9):
-            if grid[row][col] == 0:
-                return False
-    return True
 
 
 def find_square(grid, row, col):
@@ -66,36 +53,6 @@ def find_column(grid, col):
     for i in range(9):
         num_in_col.append(grid[i][col])
     return num_in_col
-
-
-def solve_grid(grid):
-    """
-    | recursive function to check if the sudoku board is solvable
-    :param grid: the sudoku to solve
-    :return: True when solvable
-    """
-    global counter
-    row, col = 0, 0
-    for i in range(0, 81):
-        row = i // 9
-        col = i % 9
-        if grid[row][col] == 0:
-            for value in range(1, 10):
-                if not (value in grid[row]):
-                    num_in_column = find_column(grid, col)
-                    if value not in num_in_column:
-                        square = find_square(grid, row, col)
-                        if value not in square:
-                            grid[row][col] = value
-                            if check_grid(grid):
-                                counter += 1
-                                break
-                            else:
-                                if solve_grid(grid):
-                                    return True
-            break
-    # reset the position to 0 when cant complete the board
-    grid[row][col] = 0
 
 
 def find_duplicate(lst):
@@ -132,36 +89,6 @@ def check_no_duplicates(grid):
             if find_duplicate(find_square(grid, square_row, square_col)):
                 return False
     return True
-
-
-def fill_grid(grid):
-    """
-    | recursive function to fill the sudoku puzzle
-    :param grid: the sudoku to fill
-    :return: True when full, full grid. None when there is no solution
-    """
-    number_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    row, col = 0, 0
-    for i in range(0, 81):
-        row = i // 9
-        col = i % 9
-        if grid[row][col] == 0:
-            shuffle(number_list)
-            for value in number_list:
-                if not (value in grid[row]):
-                    num_in_column = find_column(grid, col)
-                    if value not in num_in_column:
-                        square = find_square(grid, row, col)
-                        if value not in square:
-                            grid[row][col] = value
-                            if check_grid(grid):
-                                return True
-                            else:
-                                if fill_grid(grid):
-                                    return True, grid
-            break
-    # reset the position to 0 when cant complete the board
-    grid[row][col] = 0
 
 
 def modular_solve_after_remove(grid, size, number_of_squares):
@@ -216,58 +143,6 @@ def remove_numbers(grid):
             grid[row][col] = backup
             attempts -= 1
     return grid
-
-
-def new_board():
-    """
-    | create random full sudoku grid
-    :return: sudoku grid
-    """
-    grid = create_board(9)
-    full_grid = fill_grid(grid)[1]
-    return full_grid
-
-
-def print_board_console(grid):
-    """
-    | print sudoku grid to the console
-    :param grid: the sudoku grid to print
-    """
-    for i in range(9):
-        temp_line = str(grid[i])[1:-1]
-        temp_line = temp_line.replace(',', '')
-        print_line = f"{temp_line[0:6]}|{temp_line[6:12]}|{temp_line[12:18]}"
-        print(print_line)
-        if i in (2, 5, 8):
-            line_break = f'{"-" * 6}|{"-" * 6}|{"-" * 6}'
-            print(line_break)
-
-
-def startup():
-    full_grid = new_board()
-    print_board_console(full_grid)
-
-    print("Sudoku Grid Ready")
-
-    # remove num from board
-    grid_to_solve = remove_numbers(full_grid)
-    print_board_console(grid_to_solve)
-
-
-def unsolvable_try(grid=None):
-    if grid is None:
-        grid = []
-        for i in range(9):
-            grid.append([1, 0, 0, 0, 0, 0, 0, 0, 0])
-    dup = check_no_duplicates(grid)
-    if dup is True:
-        solve = fill_grid(grid)
-        if solve:
-            print('solved')
-        else:
-            print('unsolvable')
-    else:
-        print('unsolvable-duplicates')
 
 
 def modular_is_possible(grid, row, col, value, number_of_squares):
@@ -336,25 +211,77 @@ def modular_solve(grid, size, number_of_squares, num_list=None):
     return True
 
 
+def new_board():
+    """
+    | create random full sudoku grid
+    :return: sudoku grid
+    """
+    grid = create_board(9)
+    full_grid = modular_solve(grid, 9, 3)
+    return full_grid
+
+
+def print_board_console(grid):
+    """
+    | print sudoku grid to the console
+    :param grid: the sudoku grid to print
+    """
+    for i in range(9):
+        temp_line = str(grid[i])[1:-1]
+        temp_line = temp_line.replace(',', '')
+        print_line = f"{temp_line[0:6]}|{temp_line[6:12]}|{temp_line[12:18]}"
+        print(print_line)
+        if i in (2, 5, 8):
+            line_break = f'{"-" * 6}|{"-" * 6}|{"-" * 6}'
+            print(line_break)
+
+
+def unsolvable_try(grid=None):
+    if grid is None:
+        grid = []
+        for i in range(9):
+            grid.append([1, 0, 0, 0, 0, 0, 0, 0, 0])
+    dup = check_no_duplicates(grid)
+    if dup is True:
+        solve = modular_solve(grid, 9, 3)
+        if solve:
+            print('solved')
+        else:
+            print('unsolvable')
+    else:
+        print('unsolvable-duplicates')
+
+
+def startup():
+    full_grid = new_board()
+    print_board_console(full_grid)
+
+    print("Sudoku Grid Ready")
+
+    # remove num from board
+    grid_to_solve = remove_numbers(full_grid)
+    print_board_console(grid_to_solve)
+
+
 if __name__ == "__main__":
-    # unsolvable_try()
-    # print()
+    unsolvable_try()
+    print()
     startup()
-    # print()
-    # temp = [
-    #     [0, 0, 0, 4, 9, 7, 6, 0, 5],
-    #     [0, 0, 6, 3, 0, 8, 0, 0, 0],
-    #     [0, 7, 0, 0, 0, 0, 0, 1, 0],
-    #     [0, 3, 0, 9, 0, 0, 8, 4, 0],
-    #     [6, 0, 0, 0, 3, 0, 0, 0, 0],
-    #     [0, 4, 2, 0, 0, 0, 9, 3, 1],
-    #     [0, 5, 0, 0, 8, 0, 7, 9, 2],
-    #     [0, 8, 0, 7, 5, 3, 1, 6, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 8, 3]
-    # ]
+    print()
+    temp = [
+        [0, 0, 0, 4, 9, 7, 6, 0, 5],
+        [0, 0, 6, 3, 0, 8, 0, 0, 0],
+        [0, 7, 0, 0, 0, 0, 0, 1, 0],
+        [0, 3, 0, 9, 0, 0, 8, 4, 0],
+        [6, 0, 0, 0, 3, 0, 0, 0, 0],
+        [0, 4, 2, 0, 0, 0, 9, 3, 1],
+        [0, 5, 0, 0, 8, 0, 7, 9, 2],
+        [0, 8, 0, 7, 5, 3, 1, 6, 0],
+        [0, 0, 0, 0, 0, 0, 0, 8, 3]
+    ]
     # unsolvable_try(temp)
-    # temp = modular_solve(temp, 9, 3)
-    # if temp is False:
-    #     print('unsolvable')
-    # else:
-    #     print_board_console(temp)
+    temp = modular_solve(temp, 9, 3)
+    if temp is False:
+        print('unsolvable')
+    else:
+        print_board_console(temp)

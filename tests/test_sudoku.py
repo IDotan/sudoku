@@ -7,21 +7,6 @@ def test_create_board():
         assert grid[i] == [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
-def test_check_grid_full():
-    grid = sudoku.create_board(9)
-    assert sudoku.check_grid(grid) is False
-
-    grid = []
-    for i in range(9):
-        grid.append([1, 1, 1, 1, 1, 1, 1, 1, 1])
-    assert sudoku.check_grid(grid) is True
-
-    grid = []
-    for i in range(9):
-        grid.append([1, 1, 1, 1, 1, 0, 1, 1, 1])
-    assert sudoku.check_grid(grid) is False
-
-
 def test_find_square():
     grid = []
     for i in range(9):
@@ -158,7 +143,7 @@ def test_fill_grid():
         [2, 8, 9, 7, 5, 3, 1, 6, 4],
         [1, 6, 7, 2, 4, 9, 5, 8, 3]
     ]
-    assert sudoku.fill_grid(grid)[1] == solution
+    assert sudoku.modular_solve(grid, 9, 3) == solution
 
 
 def test_fill_grid_no_solution():
@@ -173,7 +158,7 @@ def test_fill_grid_no_solution():
         [0, 8, 0, 7, 5, 3, 1, 6, 0],
         [0, 0, 0, 0, 0, 0, 0, 8, 3]
     ]
-    assert sudoku.fill_grid(grid) is None
+    assert sudoku.modular_solve(grid, 9, 3) is False
 
 
 def test_fill_grid_duplicates():
@@ -188,7 +173,7 @@ def test_fill_grid_duplicates():
         [0, 8, 0, 7, 5, 3, 1, 6, 0],
         [0, 0, 0, 0, 0, 0, 0, 8, 3]
     ]
-    assert sudoku.fill_grid(grid) is None
+    assert sudoku.modular_solve(grid, 9, 3) is False
 
 
 def test_remove_numbers():
