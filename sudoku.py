@@ -126,12 +126,13 @@ def remove_numbers(grid, size, number_of_squares, attempts=5):
     """
     global counter
     while attempts > 0:
+        max_range = size - 1
         # Select a random cell that is not already empty
-        row = randint(0, 8)
-        col = randint(0, 8)
+        row = randint(0, max_range)
+        col = randint(0, max_range)
         while grid[row][col] == 0:
-            row = randint(0, 8)
-            col = randint(0, 8)
+            row = randint(0, max_range)
+            col = randint(0, max_range)
 
         backup = grid[row][col]
         grid[row][col] = 0
