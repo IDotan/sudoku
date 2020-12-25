@@ -13,17 +13,30 @@ class Puzzle:
             self.Cubes = [[Cube(self.base_grid[row][col], row, col, self.solution[row][col]) for col in range(size)]
                           for row in range(size)]
 
+    def reset_board(self):
+        for row in range(self.size):
+            for col in range(self.size):
+                self.Cubes[row][col].reset_cube()
+
 
 class Cube:
     def __init__(self, val, row, col, correct_val):
         self.val = val
         self.row = row
         self.col = col
-        if val != 0:
-            self.base = True
-        else:
-            self.base = False
+        self.base = True if val != 0 else False
         self.correct_val = correct_val
+
+    def reset_cube(self):
+        if not self.base:
+            self.val = 0
+
+    def set_val(self, value):
+        if not self.base:
+            self.val = value
+
+    def get_val(self):
+        return self.val
 
 
 def new_board(size, number_of_squares, difficulties):
