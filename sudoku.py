@@ -1,5 +1,5 @@
 """
-| sudoku module to create and solve 9x9 sudoku puzzle
+| sudoku module to create and solve 9x9 sudoku puzzle.
 """
 from random import randint, shuffle
 
@@ -9,9 +9,9 @@ global counter
 
 def create_board(size):
     """
-    | initialise empty sudoku grid
-    :var size: size of the grid to make
-    :return: grid filled with 0 in every position
+    | initialise empty sudoku grid.
+    :var size: size of the grid to make.
+    :return: grid filled with 0 in every position.
     """
     grid = []
     for i in range(size):
@@ -24,11 +24,11 @@ def create_board(size):
 
 def find_square(grid, row, col):
     """
-    | Identify which of the 9 squares the program is in and the num in it
-    :param grid: the grid to check
-    :param row: the row to find which square it's in
-    :param col: the column to find which square it's in
-    :return: list of num in the square
+    | Identify which of the 9 squares the program is in and the num in it.
+    :param grid: the grid to check.
+    :param row: the row to find which square it's in.
+    :param col: the column to find which square it's in.
+    :return: list of num in the square.
     """
     # floor division to find the square out of the 3 possible for the length and the width
     # multiply by 3 to get the starting position for the square in the grid
@@ -44,10 +44,10 @@ def find_square(grid, row, col):
 
 def find_column(grid, col):
     """
-    | get the num that are already in the given column
-    :param grid: the grid to use
-    :param col: the column to get it's num
-    :return: list of num in the column
+    | get the num that are already in the given column.
+    :param grid: the grid to use.
+    :param col: the column to get it's num.
+    :return: list of num in the column.
     """
     num_in_col = []
     for i in range(9):
@@ -57,9 +57,9 @@ def find_column(grid, col):
 
 def find_duplicate(lst):
     """
-    | check for duplicates in a list
-    :param lst: list to check
-    :return: True when there is duplicates in the list
+    | check for duplicates in a list.
+    :param lst: list to check.
+    :return: True when there is duplicates in the list.
     """
     if len(lst) == 0:
         return False
@@ -74,9 +74,9 @@ def find_duplicate(lst):
 
 def check_no_duplicates(grid):
     """
-    | check if the sudoku grid have duplicates in it
-    :param grid: grid to check in
-    :return: True when no duplicates are found
+    | check if the sudoku grid have duplicates in it.
+    :param grid: grid to check in.
+    :return: True when no duplicates are found.
     """
     for row in range(9):
         if find_duplicate(grid[row]):
@@ -93,11 +93,10 @@ def check_no_duplicates(grid):
 
 def modular_solve_after_remove(grid, size, number_of_squares):
     """
-    | fill given sudoku board
-    :param grid: grid to try to solve
-    :param size: the sudoku row and column length (9/16...)
-    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
-    :return:
+    | fill given sudoku board.
+    :param grid: grid to try to solve.
+    :param size: the sudoku row and column length (9/16...).
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
     """
     global counter
     for row in range(size):
@@ -117,16 +116,16 @@ def modular_solve_after_remove(grid, size, number_of_squares):
 
 def remove_numbers(grid, size, number_of_squares, attempts=5):
     """
-    | remove numbers from a sudoku board one by one to create a new sudoku puzzle with only one solution
-    :param grid: sudoku board to remove numbers from
-    :param size: the sudoku row and column length (9/16...)
-    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
-    :param attempts: number of attempts to remove numbers. default 5
-    :return: sudoku grid
+    | remove numbers from a sudoku board one by one to create a new sudoku puzzle with only one solution.
+    :param grid: sudoku board to remove numbers from.
+    :param size: the sudoku row and column length (9/16...).
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
+    :param attempts: number of attempts to remove numbers. default 5.
+    :return: sudoku grid.
     """
     global counter
+    max_range = size - 1
     while attempts > 0:
-        max_range = size - 1
         # Select a random cell that is not already empty
         row = randint(0, max_range)
         col = randint(0, max_range)
@@ -150,14 +149,14 @@ def remove_numbers(grid, size, number_of_squares, attempts=5):
 
 def modular_is_possible(grid, row, col, value, size, number_of_squares):
     """
-    | check if a given value is possible in the given sudoku grid
-    :param grid: grid to check
-    :param row: row position
-    :param col: column position
-    :param value: value to check if possible
-    :param size: the sudoku row and column length (9/16...)
-    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
-    :return: True when possible value
+    | check if a given value is possible in the given sudoku grid.
+    :param grid: grid to check.
+    :param row: row position.
+    :param col: column position.
+    :param value: value to check if possible.
+    :param size: the sudoku row and column length (9/16...).
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
+    :return: True when possible value.
     """
     for i in range(size):
         # check the value is not in the row
@@ -179,9 +178,9 @@ def modular_is_possible(grid, row, col, value, size, number_of_squares):
 
 def random_num_list(size):
     """
-    | create random list of numbers to use
-    :param size: the max number to be in the list
-    :return: random list of numbers from 1 to (size)
+    | create random list of numbers to use.
+    :param size: the max number to be in the list.
+    :return: random list of numbers from 1 to (size).
     """
     num_list = []
     for num in range(1, size + 1):
@@ -192,12 +191,12 @@ def random_num_list(size):
 
 def modular_solve(grid, size, number_of_squares, num_list=None):
     """
-    | solve given sudoku board
-    :param grid: grid to try to solve
-    :param size: the sudoku row and column length (9/16...)
-    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...)
-    :param num_list: possible numbers on the board. default None
-    :return: grid when solved, False when there is no solution
+    | solve given sudoku board.
+    :param grid: grid to try to solve.
+    :param size: the sudoku row and column length (9/16...).
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
+    :param num_list: possible numbers on the board. default None.
+    :return: grid when solved, False when there is no solution.
     """
     if num_list is None:
         num_list = random_num_list(size)
@@ -217,8 +216,8 @@ def modular_solve(grid, size, number_of_squares, num_list=None):
 
 def new_board():
     """
-    | create random full sudoku grid
-    :return: sudoku grid
+    | create random full sudoku grid.
+    :return: sudoku grid.
     """
     grid = create_board(9)
     full_grid = modular_solve(grid, 9, 3)
@@ -227,8 +226,8 @@ def new_board():
 
 def print_board_console(grid):
     """
-    | print sudoku grid to the console
-    :param grid: the sudoku grid to print
+    | print sudoku grid to the console.
+    :param grid: the sudoku grid to print.
     """
     for i in range(9):
         temp_line = str(grid[i])[1:-1]
