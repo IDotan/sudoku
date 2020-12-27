@@ -26,19 +26,19 @@ solution = [
 
 def test_puzzle_reset():
     test = game.Puzzle(grid, 9, 3, solution)
-    test.Cubes[0][0].set_val(3)
-    test.Cubes[1][0].set_val(5)
+    test.cubes[0][0].set_val(3)
+    test.cubes[1][0].set_val(5)
     # assert the change happened
-    assert test.Cubes[0][0].get_val() == 3
-    assert test.Cubes[1][0].get_val() == 5
+    assert test.cubes[0][0].get_val() == 3
+    assert test.cubes[1][0].get_val() == 5
     test.reset_board()
-    assert test.Cubes[0][0].get_val() == 0
-    assert test.Cubes[0][0].get_val() == 0
+    assert test.cubes[0][0].get_val() == 0
+    assert test.cubes[0][0].get_val() == 0
     # make sure base value didn't reset to zero
-    assert test.Cubes[0][3].get_val() == 4
+    assert test.cubes[0][3].get_val() == 4
 
 
 def test_change_base_value():
     test = game.Puzzle(grid, 9, 3, solution)
-    test.Cubes[0][3].set_val(7)
-    assert test.Cubes[0][3].get_val() == 4
+    test.cubes[0][3].set_val(7)
+    assert test.cubes[0][3].get_val() == 4
