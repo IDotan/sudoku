@@ -36,10 +36,15 @@ class Puzzle:
                 thick = 4
             else:
                 thick = 1
-            pygame.draw.line(window, (0, 0, 0), (0, i * gap), (board_width, i * gap), thick)
-            pygame.draw.line(window, (0, 0, 0), (i * gap, 0), (i * gap, board_height), thick)
+            pos = i * gap
+            pygame.draw.line(window, (0, 0, 0), (0, pos), (board_width, pos), thick)
+            pygame.draw.line(window, (0, 0, 0), (pos, 0), (pos, board_height), thick)
+            # add lower border at the bottom of the board
+            if i == self.size:
+                pygame.draw.line(window, (0, 0, 0), (0, pos - 2), (board_width, pos - 2), thick)
 
-        # Draw Cubes
+
+                # Draw Cubes
         # for i in range(self.rows):
         #     for j in range(self.cols):
         #         self.cubes[i][j].draw(win)
@@ -80,7 +85,7 @@ def new_board(size, number_of_squares, difficulties):
     return grid, full
 
 
-def draw_board(window, board, size_9, size_16):
+def draw_board(window, board):
     window.fill((255, 255, 255))
 
     board.draw_board(window)
@@ -131,7 +136,7 @@ def game_loop():
             if event.type == pygame.KEYDOWN:
                 key_pressed = get_key(event)
 
-        draw_board(window, board, size_9, size_16)
+        draw_board(window, board)
         pygame.display.update()
 
     pygame.quit()
