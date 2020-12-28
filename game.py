@@ -273,7 +273,6 @@ def check_button_clicked(button, pos):
 
 def new_board_clicked(difficulty):
     global board, num_to_find
-    print(num_to_find)
     num_to_find = 0
     if size_9:
         board = new_board(9, 3, difficulty)
