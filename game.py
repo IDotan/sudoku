@@ -63,13 +63,14 @@ class Puzzle:
         for i in range(self.size):
             for j in range(self.size):
                 self.cubes[i][j].selected = False
-
-        self.cubes[row][col].selected = True
-        self.selected = (row, col)
+        if row != -1:
+            self.cubes[row][col].selected = True
+            self.selected = (row, col)
 
     def enter_value(self, value):
         row, col = self.selected
         self.cubes[row][col].set_val(value)
+
 
 class Cube:
     def __init__(self, val, row, col, correct_val, board_width, size):
@@ -107,7 +108,7 @@ class Cube:
             if self.base is True:
                 font_color = (0, 0, 0)
             # red font when incorrect number
-            elif self.val != self.correct_val:
+            elif self.val != self.correct_val and self.correct_val != 0:
                 font_color = (255, 0, 0)
             text = fnt.render(str(self.val), True, font_color)
             window.blit(text, (x + (self.cube_width / 2 - text.get_width() / 2),
@@ -145,37 +146,60 @@ def new_board(size, number_of_squares, difficulties):
     return grid, full
 
 
-def draw_board(window, board):
-    window.fill((255, 255, 255))
+def draw_board_size_buttons(window):
+    button_9_fill = (113, 183, 253)
+    button_16_fill = (140, 140, 140)
+    global size_9
+    if size_9 is False:
+        button_9_fill = (140, 140, 140)
+        button_16_fill = (113, 183, 253)
+    button_9 = pygame.draw.rect(window, button_9_fill, button_9_data, border_radius=10)
+    button_16 = pygame.draw.rect(window, button_16_fill, button_16_data, border_radius=10)
+    font_color = (0, 0, 0)
+    font_size = 35
+    fnt = pygame.font.SysFont("comicsans", font_size)
+    text = fnt.render('9x9', True, font_color)
+    window.blit(text, (button_9.center[0] - text.get_width() / 2, button_9.center[1] - text.get_height() / 2))
+    text = fnt.render('16x16', True, font_color)
+    window.blit(text, (button_16.center[0] - text.get_width() / 2, button_16.center[1] - text.get_height() / 2))
 
+
+def draw_new_game_button(window):
+    button_fill = (113, 183, 253)
+    fnt = pygame.font.SysFont("comicsans", size=35)
+    button_new = pygame.draw.rect(window, button_fill, button_new_data, border_radius=10)
+    text = fnt.render('New Sudoku', True, (0, 0, 0))
+    window.blit(text, (button_new.center[0] - text.get_width() / 2, button_new.center[1] - text.get_height() / 2))
+
+
+def draw_board(window, board):
+    window.fill((243, 243, 243))
+
+    draw_board_size_buttons(window)
+    draw_new_game_button(window)
     board.draw_board(window)
 
 
 def get_key(event):
     key = None
-    if event.unicode == "1":
-        key = 1
-    elif event.unicode == "2":
-        key = 2
-    elif event.unicode == "3":
-        key = 3
-    elif event.unicode == "4":
-        key = 4
-    elif event.unicode == "5":
-        key = 5
-    elif event.unicode == "6":
-        key = 6
-    elif event.unicode == "7":
-        key = 7
-    elif event.unicode == "8":
-        key = 8
-    elif event.unicode == "9":
-        key = 9
-    elif event.key == 13:
-        key = 'enter'
-    elif event.key == 8:
-        key = 'delete'
+    try:
+        key = int(event.unicode)
+    except ValueError:
+        # if event.key == 13:
+        #     key = 'enter'
+        if event.key == 8:
+            key = 'delete'
     return key
+
+
+def click_buttons_board(pos):
+    global size_9
+    if button_9_data[0] <= pos[0] <= button_9_data[0] + button_9_data[2] \
+            and button_9_data[1] <= pos[1] <= button_9_data[1] + button_9_data[3]:
+        size_9 = True
+    elif button_16_data[0] <= pos[0] <= button_16_data[0] + button_16_data[2] \
+            and button_16_data[1] <= pos[1] <= button_16_data[1] + button_16_data[3]:
+        size_9 = False
 
 
 def game_loop():
@@ -190,8 +214,8 @@ def game_loop():
     board = Puzzle(board[0], 9, 3, board[1])
 
     key_pressed = None
+    global size_9
     size_9 = True
-    size_16 = False
     run = True
     while run:
         for event in pygame.event.get():
@@ -205,36 +229,34 @@ def game_loop():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                clicked = board.click(pos)
-                if clicked:
-                    board.select(clicked[0], clicked[1])
-                    key_pressed = None
+                if pos[0] < 800:
+                    clicked = board.click(pos)
+                    if clicked:
+                        board.select(clicked[0], clicked[1])
+                        key_pressed = None
+                else:
+                    board.select(-1, -1)
+                    if pos[1] < 140:
+                        click_buttons_board(pos)
 
         if board.selected and key_pressed is not None:
             board.enter_value(key_pressed)
+
         draw_board(window, board)
         pygame.display.update()
 
     pygame.quit()
 
 
+global size_9
 window_width = 1000
 window_height = 800
+# static buttons positions and size
+button_9_data = (window_width - 180, 100, 70, 40)
+button_16_data = (window_width - 90, 100, 70, 40)
+button_new_data = (window_width - 180, 180, 160, 50)
+
+pygame.font.init()
+
 if __name__ == "__main__":
-    temp = [
-        [0, 0, 0, 4, 9, 7, 6, 0, 5],
-        [0, 0, 6, 3, 0, 8, 0, 0, 0],
-        [0, 7, 0, 0, 0, 0, 0, 1, 0],
-        [0, 3, 0, 9, 0, 0, 8, 4, 0],
-        [6, 0, 0, 0, 3, 0, 0, 0, 0],
-        [0, 4, 2, 0, 0, 0, 9, 3, 1],
-        [0, 5, 0, 0, 8, 0, 7, 9, 2],
-        [0, 8, 0, 7, 5, 3, 1, 6, 0],
-        [0, 0, 0, 0, 0, 0, 0, 8, 3]
-    ]
-    game = Puzzle(temp, 9, 3)
-    game2 = new_board(9, 3, 5)
-    game2 = Puzzle(game2[0], 9, 3, game2[1])
-    print('done')
-    pygame.font.init()
     game_loop()
