@@ -127,7 +127,7 @@ class Cube:
             if self.base is True:
                 font_color = (0, 0, 0)
             # red font when incorrect number
-            elif self.val != self.correct_val and self.correct_val != 0:
+            elif self.val != self.correct_val and self.correct_val != 0 and mark_incorrect:
                 font_color = (255, 0, 0)
             text = fnt.render(str(self.val), True, font_color)
             window.blit(text, (x + (self.cube_width / 2 - text.get_width() / 2),
@@ -214,6 +214,10 @@ def draw_board(window):
         draw_menu_button(window, 'Input Sudoku', button_menu_2)
         draw_menu_button(window, 'Reset', button_menu_3)
         draw_menu_button(window, 'Solve', button_menu_4)
+        if mark_incorrect:
+            draw_menu_button(window, 'Showing mistakes', button_menu_5, (255, 0, 0), size=25, width=5)
+        else:
+            draw_menu_button(window, 'Hiding incorrect', button_menu_5, (140, 140, 140))
 
     draw_menu_button(window, 'Exit', button_menu_exit, (140, 140, 140))
     board.draw_board(window)
@@ -238,14 +242,6 @@ def check_button_clicked(button, pos):
     return False
 
 
-def click_buttons_board_size(pos):
-    global size_9
-    if check_button_clicked(button_9_data, pos):
-        size_9 = True
-    elif check_button_clicked(button_16_data, pos):
-        size_9 = False
-
-
 def new_board_clicked(difficulty):
     global board
     if size_9:
@@ -256,10 +252,6 @@ def new_board_clicked(difficulty):
         board = Puzzle(board[0], 16, 4, board[1])
 
 
-def lock_in_clicked():
-    global board
-
-
 def menu_status_difficult(pos):
     global difficulty_pick
     if check_button_clicked(button_menu_1, pos):
@@ -268,30 +260,35 @@ def menu_status_difficult(pos):
         new_board_clicked(2)
     elif check_button_clicked(button_menu_3, pos):
         new_board_clicked(3)
-    difficulty_pick = False
+    elif check_button_clicked(button_menu_4, pos):
+        difficulty_pick = False
+
+
+def menu_status_user_input_lock_clicked():
+    global user_input_board, board, user_input_board_error
+    temp = []
+    for row in range(board.get_size()):
+        temp_row = []
+        for col in range(board.get_size()):
+            temp_row.append(board.cubes[row][col].get_val())
+        temp.append(temp_row)
+    size = board.get_size()
+    squares = board.get_number_of_squares()
+    solution = False
+    if sudoku.check_no_duplicates(temp):
+        solution = sudoku.modular_solve(deepcopy(temp), size, squares)
+    if solution is not False:
+        board = Puzzle(temp, size, squares, solution)
+        user_input_board = False
+        user_input_board_error = False
+    else:
+        user_input_board_error = True
 
 
 def menu_status_user_input(pos):
     global user_input_board, board, user_input_board_error
     if check_button_clicked(button_menu_1, pos):
-        temp = []
-        for row in range(board.get_size()):
-            temp_row = []
-            for col in range(board.get_size()):
-                temp_row.append(board.cubes[row][col].get_val())
-            temp.append(temp_row)
-        size = board.get_size()
-        squares = board.get_number_of_squares()
-        solution = False
-        if sudoku.check_no_duplicates(temp):
-            solution = sudoku.modular_solve(deepcopy(temp), size, squares)
-        if solution is not False:
-            board = Puzzle(temp, size, squares, solution)
-            user_input_board = False
-            user_input_board_error = False
-        else:
-            user_input_board_error = True
-            return
+        menu_status_user_input_lock_clicked()
     elif check_button_clicked(button_menu_2, pos):
         board.reset_board()
         user_input_board_error = False
@@ -301,8 +298,28 @@ def menu_status_user_input(pos):
         user_input_board_error = False
 
 
+def main_menu(pos):
+    global size_9, board, difficulty_pick, user_input_board
+    if check_button_clicked(button_menu_1, pos):
+        difficulty_pick = True
+    elif check_button_clicked(button_menu_2, pos):
+        if size_9:
+            create_empty_board()
+        else:
+            create_empty_board(16, 4)
+        user_input_board = True
+    elif check_button_clicked(button_menu_3, pos):
+        global board
+        board.reset_board()
+    elif check_button_clicked(button_9_data, pos):
+        size_9 = True
+    elif check_button_clicked(button_16_data, pos):
+        size_9 = False
+    elif check_button_clicked(button_menu_4, pos):
+        board.solve_board()
+
+
 def click_buttons(pos):
-    global difficulty_pick, user_input_board, size_9, board
     if check_button_clicked(button_menu_exit, pos):
         global exit_clicked
         exit_clicked = True
@@ -311,20 +328,7 @@ def click_buttons(pos):
     elif user_input_board:
         menu_status_user_input(pos)
     else:
-        if check_button_clicked(button_menu_1, pos):
-            difficulty_pick = True
-        elif check_button_clicked(button_menu_2, pos):
-            if size_9:
-                create_empty_board()
-            else:
-                create_empty_board(16, 4)
-            user_input_board = True
-        elif check_button_clicked(button_menu_3, pos):
-            global board
-            board.reset_board()
-        elif check_button_clicked(button_menu_4, pos):
-            board.solve_board()
-
+        main_menu(pos)
 
 
 def create_empty_board(size=9, squares=3):
@@ -338,12 +342,13 @@ def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
-    global board, size_9, difficulty_pick, user_input_board, user_input_board_error, exit_clicked
+    global board, size_9, difficulty_pick, user_input_board, user_input_board_error, exit_clicked, mark_incorrect
     size_9 = True
     difficulty_pick = False
     user_input_board = False
     user_input_board_error = False
     exit_clicked = False
+    mark_incorrect = True
 
     key_pressed = None
     run = True
@@ -370,10 +375,7 @@ def game_loop():
                         key_pressed = None
                 else:
                     board.select(-1, -1)
-                    if pos[1] < 140:
-                        click_buttons_board_size(pos)
-                    else:
-                        click_buttons(pos)
+                    click_buttons(pos)
 
         if exit_clicked:
             break
@@ -387,7 +389,7 @@ def game_loop():
     pygame.quit()
 
 
-global size_9, board, difficulty_pick, user_input_board, user_input_board_error, exit_clicked
+global size_9, board, difficulty_pick, user_input_board, user_input_board_error, exit_clicked, mark_incorrect
 
 window_width = 1000
 window_height = 800
@@ -398,6 +400,7 @@ button_menu_1 = (window_width - 180, 180, 160, 50)
 button_menu_2 = (window_width - 180, 250, 160, 50)
 button_menu_3 = (window_width - 180, 320, 160, 50)
 button_menu_4 = (window_width - 180, 390, 160, 50)
+button_menu_5 = (window_width - 180, 460, 160, 50)
 button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
 
 pygame.font.init()
