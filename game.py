@@ -20,11 +20,14 @@ class Puzzle:
         else:
             self.cubes = [[Cube(self.base_grid[row][col], row, col, None, self.board_width, self.size)
                            for col in range(size)] for row in range(size)]
+        self.num_to_find = num_to_find
 
     def reset_board(self):
         for row in range(self.size):
             for col in range(self.size):
                 self.cubes[row][col].reset_cube()
+        global num_to_find
+        num_to_find = self.num_to_find
 
     def draw_board(self, window):
         gap = self.board_width // self.size
@@ -81,6 +84,8 @@ class Puzzle:
         for row in range(self.size):
             for col in range(self.size):
                 self.cubes[row][col].solve_cube()
+        global num_to_find
+        num_to_find = 0
 
 
 class Cube:
@@ -138,6 +143,9 @@ class Cube:
             # red font when incorrect number
             elif self.val != self.correct_val and self.correct_val != 0 and mark_incorrect:
                 font_color = (255, 0, 0)
+            # set to black when the board is complete
+            if num_to_find == 0:
+                font_color = (0, 0, 0)
             text = fnt.render(str(self.val), True, font_color)
             window.blit(text, (x + (self.cube_width / 2 - text.get_width() / 2),
                                y + (self.cube_width / 2 - text.get_height() / 2)))
@@ -264,7 +272,9 @@ def check_button_clicked(button, pos):
 
 
 def new_board_clicked(difficulty):
-    global board
+    global board, num_to_find
+    print(num_to_find)
+    num_to_find = 0
     if size_9:
         board = new_board(9, 3, difficulty)
         board = Puzzle(board[0], 9, 3, board[1])
@@ -277,16 +287,20 @@ def menu_status_difficult(pos):
     global difficulty_pick
     if check_button_clicked(button_menu_1, pos):
         new_board_clicked(1)
+        difficulty_pick = False
     elif check_button_clicked(button_menu_2, pos):
         new_board_clicked(2)
+        difficulty_pick = False
     elif check_button_clicked(button_menu_3, pos):
         new_board_clicked(3)
+        difficulty_pick = False
     elif check_button_clicked(button_menu_4, pos):
         difficulty_pick = False
 
 
 def menu_status_user_input_lock_clicked():
-    global user_input_menu, board, user_input_board_menu
+    global user_input_menu, board, user_input_board_menu, num_to_find
+    num_to_find = 0
     temp = []
     for row in range(board.get_size()):
         temp_row = []
@@ -365,7 +379,7 @@ def create_empty_board(size=9, squares=3):
 
 
 def initialize_globals():
-    global board, size_9, difficulty_pick, user_input_menu, \
+    global size_9, difficulty_pick, user_input_menu, \
         user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
     size_9 = True
     difficulty_pick = False
@@ -400,7 +414,7 @@ def game_loop():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if pos[0] < 800:
+                if pos[0] < 800 and num_to_find != 0:
                     clicked = board.click(pos)
                     if clicked:
                         board.select(clicked[0], clicked[1])
