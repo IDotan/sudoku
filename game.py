@@ -77,6 +77,11 @@ class Puzzle:
     def get_number_of_squares(self):
         return self.number_of_squares
 
+    def solve_board(self):
+        for row in range(self.size):
+            for col in range(self.size):
+                self.cubes[row][col].solve_cube()
+
 
 class Cube:
     def __init__(self, val, row, col, correct_val, board_width, size):
@@ -129,6 +134,10 @@ class Cube:
                                y + (self.cube_width / 2 - text.get_height() / 2)))
         if self.selected:
             pygame.draw.rect(window, (71, 170, 255), (x, y, self.cube_width, self.cube_width), 3)
+
+    def solve_cube(self):
+        if not self.base:
+            self.val = self.correct_val
 
 
 def difficulties_to_attempts(size, difficulties):
@@ -204,7 +213,7 @@ def draw_board(window):
         draw_menu_button(window, 'New Sudoku', button_menu_1)
         draw_menu_button(window, 'Input Sudoku', button_menu_2)
         draw_menu_button(window, 'Reset', button_menu_3)
-        draw_menu_button(window, 'Show Solution', button_menu_4)
+        draw_menu_button(window, 'Solve', button_menu_4)
 
     board.draw_board(window)
 
@@ -290,7 +299,7 @@ def menu_status_user_input(pos):
 
 
 def click_buttons(pos):
-    global difficulty_pick, user_input_board, size_9
+    global difficulty_pick, user_input_board, size_9, board
     if difficulty_pick:
         menu_status_difficult(pos)
     elif user_input_board:
@@ -307,6 +316,8 @@ def click_buttons(pos):
         elif check_button_clicked(button_menu_3, pos):
             global board
             board.reset_board()
+        elif check_button_clicked(button_menu_4, pos):
+            board.solve_board()
 
 
 def create_empty_board(size=9, squares=3):
