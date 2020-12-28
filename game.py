@@ -89,7 +89,7 @@ class Cube:
 
     def set_val(self, value):
         if not self.base:
-            if size_9:
+            if self.size == 9:
                 self.val = value
             else:
                 # fix to enter numbers in 16x16
@@ -180,7 +180,7 @@ def draw_new_game_button(window):
     window.blit(text, (button_new.center[0] - text.get_width() / 2, button_new.center[1] - text.get_height() / 2))
 
 
-def draw_board(window, board):
+def draw_board(window):
     window.fill((243, 243, 243))
 
     draw_board_size_buttons(window)
@@ -233,8 +233,9 @@ def click_buttons(pos):
 def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
-    # start with empty 9x9 board
+
     global board
+    # start with empty 9x9 board
     board = sudoku.create_board(9)
     board = Puzzle(board, 9, 3, board)
 
@@ -270,7 +271,7 @@ def game_loop():
             board.enter_value(key_pressed)
             key_pressed = None
 
-        draw_board(window, board)
+        draw_board(window)
         pygame.display.update()
 
     pygame.quit()
