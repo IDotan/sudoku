@@ -215,6 +215,7 @@ def draw_board(window):
         draw_menu_button(window, 'Reset', button_menu_3)
         draw_menu_button(window, 'Solve', button_menu_4)
 
+    draw_menu_button(window, 'Exit', button_menu_exit, (140, 140, 140))
     board.draw_board(window)
 
 
@@ -286,6 +287,7 @@ def menu_status_user_input(pos):
             solution = sudoku.modular_solve(deepcopy(temp), size, squares)
         if solution is not False:
             board = Puzzle(temp, size, squares, solution)
+            user_input_board = False
             user_input_board_error = False
         else:
             user_input_board_error = True
@@ -294,13 +296,17 @@ def menu_status_user_input(pos):
         board.reset_board()
         user_input_board_error = False
         return
-    user_input_board = False
-    user_input_board_error = False
+    elif check_button_clicked(button_menu_3, pos):
+        user_input_board = False
+        user_input_board_error = False
 
 
 def click_buttons(pos):
     global difficulty_pick, user_input_board, size_9, board
-    if difficulty_pick:
+    if check_button_clicked(button_menu_exit, pos):
+        global exit_clicked
+        exit_clicked = True
+    elif difficulty_pick:
         menu_status_difficult(pos)
     elif user_input_board:
         menu_status_user_input(pos)
@@ -320,6 +326,7 @@ def click_buttons(pos):
             board.solve_board()
 
 
+
 def create_empty_board(size=9, squares=3):
     global board
     # start with empty 9x9 board
@@ -331,11 +338,12 @@ def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
-    global board, size_9, difficulty_pick, user_input_board, user_input_board_error
+    global board, size_9, difficulty_pick, user_input_board, user_input_board_error, exit_clicked
     size_9 = True
     difficulty_pick = False
     user_input_board = False
     user_input_board_error = False
+    exit_clicked = False
 
     key_pressed = None
     run = True
@@ -367,6 +375,8 @@ def game_loop():
                     else:
                         click_buttons(pos)
 
+        if exit_clicked:
+            break
         if board.selected and key_pressed is not None:
             board.enter_value(key_pressed)
             key_pressed = None
@@ -377,7 +387,7 @@ def game_loop():
     pygame.quit()
 
 
-global size_9, board, difficulty_pick, user_input_board, user_input_board_error
+global size_9, board, difficulty_pick, user_input_board, user_input_board_error, exit_clicked
 
 window_width = 1000
 window_height = 800
@@ -388,6 +398,7 @@ button_menu_1 = (window_width - 180, 180, 160, 50)
 button_menu_2 = (window_width - 180, 250, 160, 50)
 button_menu_3 = (window_width - 180, 320, 160, 50)
 button_menu_4 = (window_width - 180, 390, 160, 50)
+button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
 
 pygame.font.init()
 
