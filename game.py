@@ -89,7 +89,15 @@ class Cube:
 
     def set_val(self, value):
         if not self.base:
-            self.val = value
+            if size_9:
+                self.val = value
+            else:
+                # fix to enter numbers in 16x16
+                if self.val == 1 and value < 7:
+                    temp_val = str(self.val) + str(value)
+                    self.val = int(temp_val)
+                else:
+                    self.val = value
 
     def get_val(self):
         return self.val
@@ -207,10 +215,26 @@ def click_buttons_board_size(pos):
         size_9 = False
 
 
+def new_board_clicked():
+    global board
+    if size_9:
+        board = new_board(9, 3, 2)
+        board = Puzzle(board[0], 9, 3, board[1])
+    else:
+        board = new_board(16, 4, 2)
+        board = Puzzle(board[0], 16, 4, board[1])
+
+
+def click_buttons(pos):
+    if check_button_clicked(button_new_data, pos):
+        new_board_clicked()
+
+
 def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
     # start with empty 9x9 board
+    global board
     board = sudoku.create_board(9)
     board = Puzzle(board, 9, 3, board)
 
@@ -240,16 +264,11 @@ def game_loop():
                     if pos[1] < 140:
                         click_buttons_board_size(pos)
                     else:
-                        if check_button_clicked(button_new_data, pos):
-                            if size_9:
-                                board = new_board(9, 3, 2)
-                                board = Puzzle(board[0], 9, 3, board[1])
-                            else:
-                                board = new_board(16, 4, 2)
-                                board = Puzzle(board[0], 16, 4, board[1])
+                        click_buttons(pos)
 
         if board.selected and key_pressed is not None:
             board.enter_value(key_pressed)
+            key_pressed = None
 
         draw_board(window, board)
         pygame.display.update()
@@ -258,6 +277,7 @@ def game_loop():
 
 
 global size_9
+global board
 window_width = 1000
 window_height = 800
 # static buttons positions and size
