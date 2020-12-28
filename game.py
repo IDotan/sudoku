@@ -272,7 +272,9 @@ def menu_status_user_input(pos):
             temp.append(temp_row)
         size = board.get_size()
         squares = board.get_number_of_squares()
-        solution = sudoku.modular_solve(deepcopy(temp), size, squares)
+        solution = False
+        if sudoku.check_no_duplicates(temp):
+            solution = sudoku.modular_solve(deepcopy(temp), size, squares)
         if solution is not False:
             board = Puzzle(temp, size, squares, solution)
             user_input_board_error = False
