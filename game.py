@@ -1,6 +1,24 @@
 import sudoku
 from copy import deepcopy
 import pygame
+import pickle
+from os import path, remove
+
+global size_9, board, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
+
+window_width = 1000
+window_height = 800
+# static buttons positions and size
+button_9_data = (window_width - 180, 100, 70, 40)
+button_16_data = (window_width - 90, 100, 70, 40)
+button_menu_1 = (window_width - 180, 180, 160, 50)
+button_menu_2 = (window_width - 180, 250, 160, 50)
+button_menu_3 = (window_width - 180, 320, 160, 50)
+button_menu_4 = (window_width - 180, 390, 160, 50)
+button_menu_5 = (window_width - 180, 460, 160, 50)
+button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
+
+pygame.font.init()
 
 
 class Puzzle:
@@ -79,6 +97,9 @@ class Puzzle:
 
     def get_number_of_squares(self):
         return self.number_of_squares
+
+    def get_num_to_find(self):
+        return self.num_to_find
 
     def solve_board(self):
         for row in range(self.size):
@@ -389,6 +410,26 @@ def initialize_globals():
     num_to_find = 0
 
 
+def load_or_create_new():
+    global board, num_to_find
+    if path.isfile('save.s'):
+        save = pickle.load(open("save.s", "rb"))
+        board = save[0]
+        num_to_find = save[1]
+    else:
+        # start with empty 9x9 board
+        new_board_clicked(2)
+
+
+def save_before_exit():
+    if num_to_find != 0:
+        save = (board, num_to_find)
+        pickle.dump(save, open("save.s", "wb"))
+    else:
+        if path.isfile('save.s'):
+            remove('save.s')
+
+
 def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
@@ -397,10 +438,7 @@ def game_loop():
 
     key_pressed = None
     run = True
-
-    # start with empty 9x9 board
-    new_board_clicked(2)
-
+    load_or_create_new()
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -431,24 +469,9 @@ def game_loop():
         draw_board(window)
         pygame.display.update()
 
+    save_before_exit()
     pygame.quit()
 
-
-global size_9, board, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
-
-window_width = 1000
-window_height = 800
-# static buttons positions and size
-button_9_data = (window_width - 180, 100, 70, 40)
-button_16_data = (window_width - 90, 100, 70, 40)
-button_menu_1 = (window_width - 180, 180, 160, 50)
-button_menu_2 = (window_width - 180, 250, 160, 50)
-button_menu_3 = (window_width - 180, 320, 160, 50)
-button_menu_4 = (window_width - 180, 390, 160, 50)
-button_menu_5 = (window_width - 180, 460, 160, 50)
-button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
-
-pygame.font.init()
 
 if __name__ == "__main__":
     game_loop()
