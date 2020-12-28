@@ -172,19 +172,23 @@ def draw_board_size_buttons(window):
     window.blit(text, (button_16.center[0] - text.get_width() / 2, button_16.center[1] - text.get_height() / 2))
 
 
-def draw_new_game_button(window):
-    button_fill = (113, 183, 253)
+def draw_menu_button(window, text, button_data, button_fill=(113, 183, 253)):
     fnt = pygame.font.SysFont("comicsans", size=35)
-    button_new = pygame.draw.rect(window, button_fill, button_new_data, border_radius=10)
-    text = fnt.render('New Sudoku', True, (0, 0, 0))
+    button_new = pygame.draw.rect(window, button_fill, button_data, border_radius=10)
+    text = fnt.render(text, True, (0, 0, 0))
     window.blit(text, (button_new.center[0] - text.get_width() / 2, button_new.center[1] - text.get_height() / 2))
 
 
 def draw_board(window):
     window.fill((243, 243, 243))
 
-    draw_board_size_buttons(window)
-    draw_new_game_button(window)
+    if difficulty_pick:
+        # todo: draw buttons
+        pass
+    else:
+        draw_board_size_buttons(window)
+        draw_menu_button(window, 'New Sudoku', button_new_data)
+
     board.draw_board(window)
 
 
@@ -242,6 +246,8 @@ def game_loop():
     key_pressed = None
     global size_9
     size_9 = True
+    global difficulty_pick
+    difficulty_pick = False
     run = True
     while run:
         for event in pygame.event.get():
@@ -279,6 +285,7 @@ def game_loop():
 
 global size_9
 global board
+global difficulty_pick
 window_width = 1000
 window_height = 800
 # static buttons positions and size
