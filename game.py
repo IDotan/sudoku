@@ -93,12 +93,21 @@ class Cube:
         self.cube_width = board_width // size
         self.size = size
         self.selected = False
+        if self.val == 0:
+            global num_to_find
+            num_to_find += 1
 
     def reset_cube(self):
         if not self.base:
             self.val = 0
 
     def set_val(self, value):
+        global num_to_find
+        if value == self.correct_val:
+            num_to_find -= 1
+        elif value != self.correct_val and self.val == self.correct_val:
+            num_to_find += 1
+
         if not self.base:
             if self.size == 9:
                 self.val = value
@@ -359,13 +368,15 @@ def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
-    global board, size_9, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect
+    global board, size_9, difficulty_pick, user_input_menu, \
+        user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
     size_9 = True
     difficulty_pick = False
     user_input_menu = False
     user_input_board_menu = False
     exit_clicked = False
     mark_incorrect = False
+    num_to_find = 0
 
     key_pressed = None
     run = True
@@ -406,7 +417,7 @@ def game_loop():
     pygame.quit()
 
 
-global size_9, board, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect
+global size_9, board, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
 
 window_width = 1000
 window_height = 800
