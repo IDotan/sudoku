@@ -71,6 +71,12 @@ class Puzzle:
         row, col = self.selected
         self.cubes[row][col].set_val(value)
 
+    def get_size(self):
+        return self.size
+
+    def get_number_of_squares(self):
+        return self.number_of_squares
+
 
 class Cube:
     def __init__(self, val, row, col, correct_val, board_width, size):
@@ -172,9 +178,9 @@ def draw_board_size_buttons(window):
     window.blit(text, (button_16.center[0] - text.get_width() / 2, button_16.center[1] - text.get_height() / 2))
 
 
-def draw_menu_button(window, text, button_data, button_fill=(113, 183, 253)):
-    fnt = pygame.font.SysFont("comicsans", size=35)
-    button_new = pygame.draw.rect(window, button_fill, button_data, border_radius=10)
+def draw_menu_button(window, text, button_data, button_fill=(113, 183, 253), size=30, width=0):
+    fnt = pygame.font.SysFont("comicsans", size)
+    button_new = pygame.draw.rect(window, button_fill, button_data, border_radius=10, width=width)
     text = fnt.render(text, True, (0, 0, 0))
     window.blit(text, (button_new.center[0] - text.get_width() / 2, button_new.center[1] - text.get_height() / 2))
 
@@ -183,11 +189,22 @@ def draw_board(window):
     window.fill((243, 243, 243))
 
     if difficulty_pick:
-        # todo: draw buttons
-        pass
+        draw_menu_button(window, 'Easy', button_menu_1)
+        draw_menu_button(window, 'Medium', button_menu_2)
+        draw_menu_button(window, 'Hard', button_menu_3)
+        draw_menu_button(window, 'Cancel', button_menu_4)
+    elif user_input_board:
+        if user_input_board_error:
+            draw_menu_button(window, 'unsolvable', (window_width-165, 120, 130, 40), (255, 0, 0), width=5)
+        draw_menu_button(window, 'Lock In', button_menu_1)
+        draw_menu_button(window, 'Restart', button_menu_2)
+        draw_menu_button(window, 'Cancel', button_menu_3)
     else:
         draw_board_size_buttons(window)
-        draw_menu_button(window, 'New Sudoku', button_new_data)
+        draw_menu_button(window, 'New Sudoku', button_menu_1)
+        draw_menu_button(window, 'Input Sudoku', button_menu_2)
+        draw_menu_button(window, 'Reset', button_menu_3)
+        draw_menu_button(window, 'Show Solution', button_menu_4)
 
     board.draw_board(window)
 
@@ -219,36 +236,100 @@ def click_buttons_board_size(pos):
         size_9 = False
 
 
-def new_board_clicked():
+def new_board_clicked(difficulty):
     global board
     if size_9:
-        board = new_board(9, 3, 2)
+        board = new_board(9, 3, difficulty)
         board = Puzzle(board[0], 9, 3, board[1])
     else:
-        board = new_board(16, 4, 2)
+        board = new_board(16, 4, difficulty)
         board = Puzzle(board[0], 16, 4, board[1])
 
 
+def lock_in_clicked():
+    global board
+
+
+def menu_status_difficult(pos):
+    global difficulty_pick
+    if check_button_clicked(button_menu_1, pos):
+        new_board_clicked(1)
+    elif check_button_clicked(button_menu_2, pos):
+        new_board_clicked(2)
+    elif check_button_clicked(button_menu_3, pos):
+        new_board_clicked(3)
+    difficulty_pick = False
+
+
+def menu_status_user_input(pos):
+    global user_input_board, board, user_input_board_error
+    if check_button_clicked(button_menu_1, pos):
+        temp = []
+        for row in range(board.get_size()):
+            temp_row = []
+            for col in range(board.get_size()):
+                temp_row.append(board.cubes[row][col].get_val())
+            temp.append(temp_row)
+        size = board.get_size()
+        squares = board.get_number_of_squares()
+        solution = sudoku.modular_solve(deepcopy(temp), size, squares)
+        if solution is not False:
+            board = Puzzle(temp, size, squares, solution)
+            user_input_board_error = False
+        else:
+            user_input_board_error = True
+            return
+    elif check_button_clicked(button_menu_2, pos):
+        board.reset_board()
+        user_input_board_error = False
+        return
+    user_input_board = False
+    user_input_board_error = False
+
+
 def click_buttons(pos):
-    if check_button_clicked(button_new_data, pos):
-        new_board_clicked()
+    global difficulty_pick, user_input_board, size_9
+    if difficulty_pick:
+        menu_status_difficult(pos)
+    elif user_input_board:
+        menu_status_user_input(pos)
+    else:
+        if check_button_clicked(button_menu_1, pos):
+            difficulty_pick = True
+        elif check_button_clicked(button_menu_2, pos):
+            if size_9:
+                create_empty_board()
+            else:
+                create_empty_board(16, 4)
+            user_input_board = True
+        elif check_button_clicked(button_menu_3, pos):
+            global board
+            board.reset_board()
+
+
+def create_empty_board(size=9, squares=3):
+    global board
+    # start with empty 9x9 board
+    board = sudoku.create_board(size)
+    board = Puzzle(board, size, squares, board)
 
 
 def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
-    global board
-    # start with empty 9x9 board
-    board = sudoku.create_board(9)
-    board = Puzzle(board, 9, 3, board)
+    global board, size_9, difficulty_pick, user_input_board, user_input_board_error
+    size_9 = True
+    difficulty_pick = False
+    user_input_board = False
+    user_input_board_error = False
 
     key_pressed = None
-    global size_9
-    size_9 = True
-    global difficulty_pick
-    difficulty_pick = False
     run = True
+
+    # start with empty 9x9 board
+    new_board_clicked(2)
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -283,15 +364,17 @@ def game_loop():
     pygame.quit()
 
 
-global size_9
-global board
-global difficulty_pick
+global size_9, board, difficulty_pick, user_input_board, user_input_board_error
+
 window_width = 1000
 window_height = 800
 # static buttons positions and size
 button_9_data = (window_width - 180, 100, 70, 40)
 button_16_data = (window_width - 90, 100, 70, 40)
-button_new_data = (window_width - 180, 180, 160, 50)
+button_menu_1 = (window_width - 180, 180, 160, 50)
+button_menu_2 = (window_width - 180, 250, 160, 50)
+button_menu_3 = (window_width - 180, 320, 160, 50)
+button_menu_4 = (window_width - 180, 390, 160, 50)
 
 pygame.font.init()
 
