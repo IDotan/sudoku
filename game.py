@@ -194,30 +194,42 @@ def draw_menu_button(window, text, button_data, button_fill=(113, 183, 253), siz
     window.blit(text, (button_new.center[0] - text.get_width() / 2, button_new.center[1] - text.get_height() / 2))
 
 
+def draw_difficulty_menu(window):
+    draw_menu_button(window, 'Easy', button_menu_1)
+    draw_menu_button(window, 'Medium', button_menu_2)
+    draw_menu_button(window, 'Hard', button_menu_3)
+    draw_menu_button(window, 'Cancel', button_menu_4)
+
+
+def draw_user_input_menu(window):
+    if user_input_board_menu:
+        draw_menu_button(window, 'unsolvable', (window_width - 165, 120, 130, 40), (255, 0, 0), width=5)
+    draw_menu_button(window, 'Lock In', button_menu_1)
+    draw_menu_button(window, 'Restart', button_menu_2)
+    draw_menu_button(window, 'Cancel', button_menu_3)
+
+
+def draw_main_menu(window):
+    draw_board_size_buttons(window)
+    draw_menu_button(window, 'New Sudoku', button_menu_1)
+    draw_menu_button(window, 'Input Sudoku', button_menu_2)
+    draw_menu_button(window, 'Reset', button_menu_3)
+    draw_menu_button(window, 'Solve', button_menu_4)
+    if mark_incorrect:
+        draw_menu_button(window, 'Showing mistakes', button_menu_5, (255, 0, 0), size=25, width=5)
+    else:
+        draw_menu_button(window, 'Hiding incorrect', button_menu_5, (140, 140, 140))
+
+
 def draw_board(window):
     window.fill((243, 243, 243))
 
     if difficulty_pick:
-        draw_menu_button(window, 'Easy', button_menu_1)
-        draw_menu_button(window, 'Medium', button_menu_2)
-        draw_menu_button(window, 'Hard', button_menu_3)
-        draw_menu_button(window, 'Cancel', button_menu_4)
-    elif user_input_board:
-        if user_input_board_error:
-            draw_menu_button(window, 'unsolvable', (window_width-165, 120, 130, 40), (255, 0, 0), width=5)
-        draw_menu_button(window, 'Lock In', button_menu_1)
-        draw_menu_button(window, 'Restart', button_menu_2)
-        draw_menu_button(window, 'Cancel', button_menu_3)
+        draw_difficulty_menu(window)
+    elif user_input_menu:
+        draw_user_input_menu(window)
     else:
-        draw_board_size_buttons(window)
-        draw_menu_button(window, 'New Sudoku', button_menu_1)
-        draw_menu_button(window, 'Input Sudoku', button_menu_2)
-        draw_menu_button(window, 'Reset', button_menu_3)
-        draw_menu_button(window, 'Solve', button_menu_4)
-        if mark_incorrect:
-            draw_menu_button(window, 'Showing mistakes', button_menu_5, (255, 0, 0), size=25, width=5)
-        else:
-            draw_menu_button(window, 'Hiding incorrect', button_menu_5, (140, 140, 140))
+        draw_main_menu(window)
 
     draw_menu_button(window, 'Exit', button_menu_exit, (140, 140, 140))
     board.draw_board(window)
@@ -265,7 +277,7 @@ def menu_status_difficult(pos):
 
 
 def menu_status_user_input_lock_clicked():
-    global user_input_board, board, user_input_board_error
+    global user_input_menu, board, user_input_board_menu
     temp = []
     for row in range(board.get_size()):
         temp_row = []
@@ -279,27 +291,27 @@ def menu_status_user_input_lock_clicked():
         solution = sudoku.modular_solve(deepcopy(temp), size, squares)
     if solution is not False:
         board = Puzzle(temp, size, squares, solution)
-        user_input_board = False
-        user_input_board_error = False
+        user_input_menu = False
+        user_input_board_menu = False
     else:
-        user_input_board_error = True
+        user_input_board_menu = True
 
 
 def menu_status_user_input(pos):
-    global user_input_board, board, user_input_board_error
+    global user_input_menu, board, user_input_board_menu
     if check_button_clicked(button_menu_1, pos):
         menu_status_user_input_lock_clicked()
     elif check_button_clicked(button_menu_2, pos):
         board.reset_board()
-        user_input_board_error = False
+        user_input_board_menu = False
         return
     elif check_button_clicked(button_menu_3, pos):
-        user_input_board = False
-        user_input_board_error = False
+        user_input_menu = False
+        user_input_board_menu = False
 
 
 def main_menu(pos):
-    global size_9, board, difficulty_pick, user_input_board, mark_incorrect
+    global size_9, board, difficulty_pick, user_input_menu, mark_incorrect
     if check_button_clicked(button_9_data, pos):
         size_9 = True
     elif check_button_clicked(button_16_data, pos):
@@ -311,7 +323,7 @@ def main_menu(pos):
             create_empty_board()
         else:
             create_empty_board(16, 4)
-        user_input_board = True
+        user_input_menu = True
     elif check_button_clicked(button_menu_3, pos):
         global board
         board.reset_board()
@@ -330,7 +342,7 @@ def click_buttons(pos):
         exit_clicked = True
     elif difficulty_pick:
         menu_status_difficult(pos)
-    elif user_input_board:
+    elif user_input_menu:
         menu_status_user_input(pos)
     else:
         main_menu(pos)
@@ -347,11 +359,11 @@ def game_loop():
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
-    global board, size_9, difficulty_pick, user_input_board, user_input_board_error, exit_clicked, mark_incorrect
+    global board, size_9, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect
     size_9 = True
     difficulty_pick = False
-    user_input_board = False
-    user_input_board_error = False
+    user_input_menu = False
+    user_input_board_menu = False
     exit_clicked = False
     mark_incorrect = False
 
@@ -394,7 +406,7 @@ def game_loop():
     pygame.quit()
 
 
-global size_9, board, difficulty_pick, user_input_board, user_input_board_error, exit_clicked, mark_incorrect
+global size_9, board, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect
 
 window_width = 1000
 window_height = 800
