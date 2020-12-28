@@ -364,10 +364,7 @@ def create_empty_board(size=9, squares=3):
     board = Puzzle(board, size, squares, board)
 
 
-def game_loop():
-    window = pygame.display.set_mode([window_width, window_height])
-    pygame.display.set_caption("Sudoku Game")
-
+def initialize_globals():
     global board, size_9, difficulty_pick, user_input_menu, \
         user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
     size_9 = True
@@ -377,6 +374,13 @@ def game_loop():
     exit_clicked = False
     mark_incorrect = False
     num_to_find = 0
+
+
+def game_loop():
+    window = pygame.display.set_mode([window_width, window_height])
+    pygame.display.set_caption("Sudoku Game")
+
+    initialize_globals()
 
     key_pressed = None
     run = True
