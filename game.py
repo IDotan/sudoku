@@ -192,13 +192,18 @@ def get_key(event):
     return key
 
 
-def click_buttons_board(pos):
+def check_button_clicked(button, pos):
+    if button[0] <= pos[0] <= button[0] + button[2] \
+            and button[1] <= pos[1] <= button[1] + button[3]:
+        return True
+    return False
+
+
+def click_buttons_board_size(pos):
     global size_9
-    if button_9_data[0] <= pos[0] <= button_9_data[0] + button_9_data[2] \
-            and button_9_data[1] <= pos[1] <= button_9_data[1] + button_9_data[3]:
+    if check_button_clicked(button_9_data, pos):
         size_9 = True
-    elif button_16_data[0] <= pos[0] <= button_16_data[0] + button_16_data[2] \
-            and button_16_data[1] <= pos[1] <= button_16_data[1] + button_16_data[3]:
+    elif check_button_clicked(button_16_data, pos):
         size_9 = False
 
 
@@ -208,10 +213,6 @@ def game_loop():
     # start with empty 9x9 board
     board = sudoku.create_board(9)
     board = Puzzle(board, 9, 3, board)
-
-    # board and a solution
-    board = new_board(9, 3, 2)
-    board = Puzzle(board[0], 9, 3, board[1])
 
     key_pressed = None
     global size_9
@@ -237,7 +238,15 @@ def game_loop():
                 else:
                     board.select(-1, -1)
                     if pos[1] < 140:
-                        click_buttons_board(pos)
+                        click_buttons_board_size(pos)
+                    else:
+                        if check_button_clicked(button_new_data, pos):
+                            if size_9:
+                                board = new_board(9, 3, 2)
+                                board = Puzzle(board[0], 9, 3, board[1])
+                            else:
+                                board = new_board(16, 4, 2)
+                                board = Puzzle(board[0], 16, 4, board[1])
 
         if board.selected and key_pressed is not None:
             board.enter_value(key_pressed)
