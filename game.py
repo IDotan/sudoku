@@ -299,8 +299,12 @@ def menu_status_user_input(pos):
 
 
 def main_menu(pos):
-    global size_9, board, difficulty_pick, user_input_board
-    if check_button_clicked(button_menu_1, pos):
+    global size_9, board, difficulty_pick, user_input_board, mark_incorrect
+    if check_button_clicked(button_9_data, pos):
+        size_9 = True
+    elif check_button_clicked(button_16_data, pos):
+        size_9 = False
+    elif check_button_clicked(button_menu_1, pos):
         difficulty_pick = True
     elif check_button_clicked(button_menu_2, pos):
         if size_9:
@@ -311,12 +315,13 @@ def main_menu(pos):
     elif check_button_clicked(button_menu_3, pos):
         global board
         board.reset_board()
-    elif check_button_clicked(button_9_data, pos):
-        size_9 = True
-    elif check_button_clicked(button_16_data, pos):
-        size_9 = False
     elif check_button_clicked(button_menu_4, pos):
         board.solve_board()
+    elif check_button_clicked(button_menu_5, pos):
+        if mark_incorrect:
+            mark_incorrect = False
+        else:
+            mark_incorrect = True
 
 
 def click_buttons(pos):
@@ -348,7 +353,7 @@ def game_loop():
     user_input_board = False
     user_input_board_error = False
     exit_clicked = False
-    mark_incorrect = True
+    mark_incorrect = False
 
     key_pressed = None
     run = True
