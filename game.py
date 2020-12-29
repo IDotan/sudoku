@@ -4,8 +4,8 @@ import pygame
 import pickle
 from os import path, remove
 
-global size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
-    exit_clicked, mark_incorrect, num_to_find
+global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
+    exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
 
 window_width = 1000
 window_height = 800
@@ -18,6 +18,7 @@ button_menu_3 = (window_width - 180, 320, 160, 50)
 button_menu_4 = (window_width - 180, 390, 160, 50)
 button_menu_5 = (window_width - 180, 460, 160, 50)
 button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
+
 
 pygame.font.init()
 
@@ -48,7 +49,7 @@ class Puzzle:
         global num_to_find
         num_to_find = self.num_to_find
 
-    def draw_board(self, window):
+    def draw_board(self):
         gap = self.board_width // self.size
         for i in range(self.size + 1):
             if i in range(0, self.size + 1, self.number_of_squares):
@@ -64,7 +65,7 @@ class Puzzle:
 
         for row in range(self.size):
             for col in range(self.size):
-                self.cubes[row][col].draw_cube(window)
+                self.cubes[row][col].draw_cube()
 
     def click(self, pos):
         if pos[0] < self.board_width and pos[1] < self.board_height:
@@ -149,7 +150,7 @@ class Cube:
     def get_val(self):
         return self.val
 
-    def draw_cube(self, window):
+    def draw_cube(self):
         font_size = 75
         if self.size == 16:
             font_size = 45
@@ -208,7 +209,7 @@ def new_board(size, number_of_squares, difficulties):
     return grid, full
 
 
-def draw_board_size_buttons(window):
+def draw_board_size_buttons():
     button_9_fill = (113, 183, 253)
     button_16_fill = (140, 140, 140)
     global size_9
@@ -226,52 +227,52 @@ def draw_board_size_buttons(window):
     window.blit(text, (button_16.center[0] - text.get_width() / 2, button_16.center[1] - text.get_height() / 2))
 
 
-def draw_menu_button(window, text, button_data, button_fill=(113, 183, 253), size=30, width=0):
+def draw_menu_button(text, button_data, button_fill=(113, 183, 253), size=30, width=0):
     fnt = pygame.font.SysFont("comicsans", size)
     button_new = pygame.draw.rect(window, button_fill, button_data, border_radius=10, width=width)
     text = fnt.render(text, True, (0, 0, 0))
     window.blit(text, (button_new.center[0] - text.get_width() / 2, button_new.center[1] - text.get_height() / 2))
 
 
-def draw_difficulty_menu(window):
-    draw_menu_button(window, 'Easy', button_menu_1)
-    draw_menu_button(window, 'Medium', button_menu_2)
-    draw_menu_button(window, 'Hard', button_menu_3)
-    draw_menu_button(window, 'Cancel', button_menu_4)
+def draw_difficulty_menu():
+    draw_menu_button('Easy', button_menu_1)
+    draw_menu_button('Medium', button_menu_2)
+    draw_menu_button('Hard', button_menu_3)
+    draw_menu_button('Cancel', button_menu_4)
 
 
-def draw_user_input_menu(window):
+def draw_user_input_menu():
     if user_input_menu_unsolvable:
-        draw_menu_button(window, 'unsolvable', (window_width - 165, 120, 130, 40), (255, 0, 0), width=5)
-    draw_menu_button(window, 'Lock In', button_menu_1)
-    draw_menu_button(window, 'Restart', button_menu_2)
-    draw_menu_button(window, 'Cancel', button_menu_3)
+        draw_menu_button('unsolvable', (window_width - 165, 120, 130, 40), (255, 0, 0), width=5)
+    draw_menu_button('Lock In', button_menu_1)
+    draw_menu_button('Restart', button_menu_2)
+    draw_menu_button('Cancel', button_menu_3)
 
 
-def draw_main_menu(window):
-    draw_board_size_buttons(window)
-    draw_menu_button(window, 'New Sudoku', button_menu_1)
-    draw_menu_button(window, 'Input Sudoku', button_menu_2)
-    draw_menu_button(window, 'Reset', button_menu_3)
-    draw_menu_button(window, 'Solve', button_menu_4)
+def draw_main_menu():
+    draw_board_size_buttons()
+    draw_menu_button('New Sudoku', button_menu_1)
+    draw_menu_button('Input Sudoku', button_menu_2)
+    draw_menu_button('Reset', button_menu_3)
+    draw_menu_button('Solve', button_menu_4)
     if mark_incorrect:
-        draw_menu_button(window, 'Showing mistakes', button_menu_5, (255, 0, 0), size=25, width=5)
+        draw_menu_button('Showing mistakes', button_menu_5, (255, 0, 0), size=25, width=5)
     else:
-        draw_menu_button(window, 'Hiding incorrect', button_menu_5, (140, 140, 140))
+        draw_menu_button('Hiding incorrect', button_menu_5, (140, 140, 140))
 
 
-def draw_board(window):
+def draw_board():
     window.fill((243, 243, 243))
 
     if difficulty_pick:
-        draw_difficulty_menu(window)
+        draw_difficulty_menu()
     elif user_input_menu:
-        draw_user_input_menu(window)
+        draw_user_input_menu()
     else:
-        draw_main_menu(window)
+        draw_main_menu()
 
-    draw_menu_button(window, 'Exit', button_menu_exit, (140, 140, 140))
-    board.draw_board(window)
+    draw_menu_button('Exit', button_menu_exit, (140, 140, 140))
+    board.draw_board()
 
 
 def get_key(event):
@@ -320,7 +321,7 @@ def menu_status_difficult(pos):
 
 
 def check_user_sudoku_input(grid, size, squares):
-    global user_input_menu, board, user_input_menu_unsolvable, num_to_find
+    global user_input_menu, board, user_input_menu_unsolvable, num_to_find, load_user_sudoku
     solution = False
     if sudoku.check_no_duplicates(grid, squares):
         solution = sudoku.modular_solve(deepcopy(grid), size, squares)
@@ -331,10 +332,11 @@ def check_user_sudoku_input(grid, size, squares):
         user_input_menu_unsolvable = False
     else:
         user_input_menu_unsolvable = True
+    load_user_sudoku = False
 
 
 def menu_status_user_input_lock_clicked():
-    global board
+    global board, load_user_sudoku
     temp = []
     for row in range(board.get_size()):
         temp_row = []
@@ -343,6 +345,7 @@ def menu_status_user_input_lock_clicked():
         temp.append(temp_row)
     size = board.get_size()
     squares = board.get_number_of_squares()
+    load_user_sudoku = True
     check_user_sudoku_input(temp, size, squares)
 
 
@@ -406,7 +409,7 @@ def create_empty_board(size=9, squares=3):
 
 def initialize_globals():
     global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
-        exit_clicked, mark_incorrect, num_to_find
+        exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
     size_9 = True
     difficulty_pick = False
     user_input_menu = False
@@ -414,6 +417,7 @@ def initialize_globals():
     exit_clicked = False
     mark_incorrect = False
     num_to_find = 0
+    load_user_sudoku = False
 
 
 def load_or_create_new():
@@ -437,6 +441,7 @@ def save_before_exit():
 
 
 def game_loop():
+    global window
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
@@ -472,7 +477,7 @@ def game_loop():
             board.enter_value(key_pressed)
             key_pressed = None
 
-        draw_board(window)
+        draw_board()
         pygame.display.update()
 
     save_before_exit()
