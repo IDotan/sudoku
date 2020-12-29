@@ -22,23 +22,23 @@ def create_board(size):
     return grid
 
 
-def find_square(grid, row, col):
+def find_square(grid, row, col, number_of_squares):
     """
     | Identify which of the 9 squares the program is in and the num in it.
     :param grid: the grid to check.
     :param row: the row to find which square it's in.
     :param col: the column to find which square it's in.
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
     :return: list of num in the square.
     """
-    # floor division to find the square out of the 3 possible for the length and the width
-    # multiply by 3 to get the starting position for the square in the grid
-    square_row = (row//3) * 3
-    square_col = (col//3) * 3
+    # divide to go to the start of the square
+    # square_row = row//number_of_squares
+    # square_col = col//number_of_squares
     square_list = []
-    for i in range(3):
-        for j in range(3):
+    for i in range(number_of_squares):
+        for j in range(number_of_squares):
             # go over each col for every row and add the num to the list
-            square_list.append(grid[square_row + i][square_col + j])
+            square_list.append(grid[row + i][col + j])
     return square_list
 
 
@@ -72,21 +72,23 @@ def find_duplicate(lst):
     return False
 
 
-def check_no_duplicates(grid):
+def check_no_duplicates(grid, number_of_squares):
     """
     | check if the sudoku grid have duplicates in it.
     :param grid: grid to check in.
+    :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
     :return: True when no duplicates are found.
     """
-    for row in range(9):
+    size = len(grid)
+    for row in range(size):
         if find_duplicate(grid[row]):
             return False
-    for col in range(9):
+    for col in range(size):
         if find_duplicate(find_column(grid, col)):
             return False
-    for square_row in [0, 3, 6]:
-        for square_col in [0, 3, 6]:
-            if find_duplicate(find_square(grid, square_row, square_col)):
+    for square_row in range(0, size, number_of_squares):
+        for square_col in range(0, size, number_of_squares):
+            if find_duplicate(find_square(grid, square_row, square_col, number_of_squares)):
                 return False
     return True
 
@@ -244,7 +246,7 @@ def unsolvable_try(grid=None):
         grid = []
         for i in range(9):
             grid.append([1, 0, 0, 0, 0, 0, 0, 0, 0])
-    dup = check_no_duplicates(grid)
+    dup = check_no_duplicates(grid, 3)
     if dup is True:
         solve = modular_solve(grid, 9, 3)
         if solve:
