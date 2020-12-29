@@ -4,7 +4,8 @@ import pygame
 import pickle
 from os import path, remove
 
-global size_9, board, difficulty_pick, user_input_menu, user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
+global size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
+    exit_clicked, mark_incorrect, num_to_find
 
 window_width = 1000
 window_height = 800
@@ -240,7 +241,7 @@ def draw_difficulty_menu(window):
 
 
 def draw_user_input_menu(window):
-    if user_input_board_menu:
+    if user_input_menu_unsolvable:
         draw_menu_button(window, 'unsolvable', (window_width - 165, 120, 130, 40), (255, 0, 0), width=5)
     draw_menu_button(window, 'Lock In', button_menu_1)
     draw_menu_button(window, 'Restart', button_menu_2)
@@ -318,9 +319,22 @@ def menu_status_difficult(pos):
         difficulty_pick = False
 
 
+def check_user_sudoku_input(grid, size, squares):
+    global user_input_menu, board, user_input_menu_unsolvable, num_to_find
+    solution = False
+    if sudoku.check_no_duplicates(grid, squares):
+        solution = sudoku.modular_solve(deepcopy(grid), size, squares)
+    if solution is not False:
+        num_to_find = 0
+        board = Puzzle(grid, size, squares, solution)
+        user_input_menu = False
+        user_input_menu_unsolvable = False
+    else:
+        user_input_menu_unsolvable = True
+
+
 def menu_status_user_input_lock_clicked():
-    global user_input_menu, board, user_input_board_menu, num_to_find
-    num_to_find = 0
+    global board
     temp = []
     for row in range(board.get_size()):
         temp_row = []
@@ -329,28 +343,20 @@ def menu_status_user_input_lock_clicked():
         temp.append(temp_row)
     size = board.get_size()
     squares = board.get_number_of_squares()
-    solution = False
-    if sudoku.check_no_duplicates(temp):
-        solution = sudoku.modular_solve(deepcopy(temp), size, squares)
-    if solution is not False:
-        board = Puzzle(temp, size, squares, solution)
-        user_input_menu = False
-        user_input_board_menu = False
-    else:
-        user_input_board_menu = True
+    check_user_sudoku_input(temp, size, squares)
 
 
 def menu_status_user_input(pos):
-    global user_input_menu, board, user_input_board_menu
+    global user_input_menu, board, user_input_menu_unsolvable
     if check_button_clicked(button_menu_1, pos):
         menu_status_user_input_lock_clicked()
     elif check_button_clicked(button_menu_2, pos):
         board.reset_board()
-        user_input_board_menu = False
+        user_input_menu_unsolvable = False
         return
     elif check_button_clicked(button_menu_3, pos):
         user_input_menu = False
-        user_input_board_menu = False
+        user_input_menu_unsolvable = False
 
 
 def main_menu(pos):
@@ -399,12 +405,12 @@ def create_empty_board(size=9, squares=3):
 
 
 def initialize_globals():
-    global size_9, difficulty_pick, user_input_menu, \
-        user_input_board_menu, exit_clicked, mark_incorrect, num_to_find
+    global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
+        exit_clicked, mark_incorrect, num_to_find
     size_9 = True
     difficulty_pick = False
     user_input_menu = False
-    user_input_board_menu = False
+    user_input_menu_unsolvable = False
     exit_clicked = False
     mark_incorrect = False
     num_to_find = 0
@@ -422,10 +428,10 @@ def load_or_create_new():
 
 
 def save_before_exit():
-    if num_to_find != 0:
+    if num_to_find != 0 and user_input_menu is False:
         save = (board, num_to_find)
         pickle.dump(save, open("save.s", "wb"))
-    else:
+    elif num_to_find == 0:
         if path.isfile('save.s'):
             remove('save.s')
 
