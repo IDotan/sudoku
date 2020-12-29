@@ -276,18 +276,6 @@ def draw_board():
     board.draw_board()
 
 
-def get_key(event):
-    key = None
-    try:
-        key = int(event.unicode)
-    except ValueError:
-        # if event.key == 13:
-        #     key = 'enter'
-        if event.key == 8:
-            key = 'delete'
-    return key
-
-
 def check_button_clicked(button, pos):
     if button[0] <= pos[0] <= button[0] + button[2] \
             and button[1] <= pos[1] <= button[1] + button[3]:
@@ -347,26 +335,7 @@ def menu_status_user_input_lock_clicked():
         temp.append(temp_row)
     size = board.get_size()
     squares = board.get_number_of_squares()
-    temp = [
-        [2, 0, 0, 0, 0, 6, 0, 0, 0, 15, 0, 0, 0, 13, 0, 14],
-        [0, 0, 15, 0, 0, 0, 0, 0, 4, 0, 0, 14, 5, 0, 0, 0],
-        [8, 0, 0, 5, 1, 0, 0, 12, 0, 13, 0, 0, 4, 0, 7, 0],
-        [0, 12, 6, 4, 3, 9, 7, 0, 0, 8, 0, 5, 15, 11, 0, 0],
-        [0, 13, 0, 15, 0, 8, 5, 7, 6, 0, 9, 0, 10, 12, 0, 0],
-        [0, 0, 0, 0, 6, 0, 0, 1, 0, 14, 0, 7, 16, 0, 0, 4],
-        [5, 0, 7, 14, 0, 12, 9, 0, 0, 11, 0, 8, 3, 0, 0, 0],
-        [0, 11, 0, 0, 15, 0, 0, 10, 3, 0, 12, 1, 0, 9, 0, 0],
-        [0, 0, 9, 0, 4, 5, 0, 8, 13, 0, 0, 10, 0, 0, 16, 0],
-        [0, 0, 0, 8, 13, 0, 1, 0, 0, 12, 16, 0, 14, 10, 0, 15],
-        [10, 0, 0, 2, 12, 0, 15, 0, 9, 0, 0, 3, 0, 0, 0, 0],
-        [0, 0, 13, 7, 0, 2, 0, 3, 1, 4, 15, 0, 8, 0, 9, 0],
-        [0, 0, 4, 9, 7, 0, 6, 0, 0, 10, 5, 11, 12, 3, 1, 0],
-        [0, 10, 0, 3, 0, 0, 14, 0, 2, 0, 0, 15, 13, 0, 0, 9],
-        [0, 0, 0, 13, 10, 0, 0, 2, 0, 0, 0, 0, 0, 15, 0, 0],
-        [7, 0, 11, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0, 0, 0, 10]
-    ]
     load_user_sudoku = (temp, size, squares)
-    # check_user_sudoku_input(temp, size, squares)
 
 
 def menu_status_user_input(pos):
@@ -380,6 +349,13 @@ def menu_status_user_input(pos):
     elif check_button_clicked(button_menu_3, pos):
         user_input_menu = False
         user_input_menu_unsolvable = False
+
+
+def create_empty_board(size=9, squares=3):
+    global board
+    # start with empty 9x9 board
+    board = sudoku.create_board(size)
+    board = Puzzle(board, size, squares, board)
 
 
 def main_menu(pos):
@@ -420,13 +396,6 @@ def click_buttons(pos):
         main_menu(pos)
 
 
-def create_empty_board(size=9, squares=3):
-    global board
-    # start with empty 9x9 board
-    board = sudoku.create_board(size)
-    board = Puzzle(board, size, squares, board)
-
-
 def initialize_globals():
     global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
         exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
@@ -438,6 +407,18 @@ def initialize_globals():
     mark_incorrect = False
     num_to_find = 0
     load_user_sudoku = None
+
+
+def get_key(event):
+    key = None
+    try:
+        key = int(event.unicode)
+    except ValueError:
+        # if event.key == 13:
+        #     key = 'enter'
+        if event.key == 8:
+            key = 'delete'
+    return key
 
 
 def load_or_create_new():
