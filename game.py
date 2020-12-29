@@ -3,6 +3,7 @@ from copy import deepcopy
 import pygame
 import pickle
 from os import path, remove
+import threading
 
 global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
     exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
@@ -323,6 +324,7 @@ def menu_status_difficult(pos):
 def check_user_sudoku_input(grid, size, squares):
     global user_input_menu, board, user_input_menu_unsolvable, num_to_find, load_user_sudoku
     solution = False
+    load_user_sudoku = True
     if sudoku.check_no_duplicates(grid, squares):
         solution = sudoku.modular_solve(deepcopy(grid), size, squares)
     if solution is not False:
@@ -332,7 +334,7 @@ def check_user_sudoku_input(grid, size, squares):
         user_input_menu_unsolvable = False
     else:
         user_input_menu_unsolvable = True
-    load_user_sudoku = False
+    load_user_sudoku = None
 
 
 def menu_status_user_input_lock_clicked():
@@ -345,8 +347,26 @@ def menu_status_user_input_lock_clicked():
         temp.append(temp_row)
     size = board.get_size()
     squares = board.get_number_of_squares()
-    load_user_sudoku = True
-    check_user_sudoku_input(temp, size, squares)
+    temp = [
+        [2, 0, 0, 0, 0, 6, 0, 0, 0, 15, 0, 0, 0, 13, 0, 14],
+        [0, 0, 15, 0, 0, 0, 0, 0, 4, 0, 0, 14, 5, 0, 0, 0],
+        [8, 0, 0, 5, 1, 0, 0, 12, 0, 13, 0, 0, 4, 0, 7, 0],
+        [0, 12, 6, 4, 3, 9, 7, 0, 0, 8, 0, 5, 15, 11, 0, 0],
+        [0, 13, 0, 15, 0, 8, 5, 7, 6, 0, 9, 0, 10, 12, 0, 0],
+        [0, 0, 0, 0, 6, 0, 0, 1, 0, 14, 0, 7, 16, 0, 0, 4],
+        [5, 0, 7, 14, 0, 12, 9, 0, 0, 11, 0, 8, 3, 0, 0, 0],
+        [0, 11, 0, 0, 15, 0, 0, 10, 3, 0, 12, 1, 0, 9, 0, 0],
+        [0, 0, 9, 0, 4, 5, 0, 8, 13, 0, 0, 10, 0, 0, 16, 0],
+        [0, 0, 0, 8, 13, 0, 1, 0, 0, 12, 16, 0, 14, 10, 0, 15],
+        [10, 0, 0, 2, 12, 0, 15, 0, 9, 0, 0, 3, 0, 0, 0, 0],
+        [0, 0, 13, 7, 0, 2, 0, 3, 1, 4, 15, 0, 8, 0, 9, 0],
+        [0, 0, 4, 9, 7, 0, 6, 0, 0, 10, 5, 11, 12, 3, 1, 0],
+        [0, 10, 0, 3, 0, 0, 14, 0, 2, 0, 0, 15, 13, 0, 0, 9],
+        [0, 0, 0, 13, 10, 0, 0, 2, 0, 0, 0, 0, 0, 15, 0, 0],
+        [7, 0, 11, 0, 0, 0, 4, 0, 0, 0, 6, 0, 0, 0, 0, 10]
+    ]
+    load_user_sudoku = (temp, size, squares)
+    # check_user_sudoku_input(temp, size, squares)
 
 
 def menu_status_user_input(pos):
@@ -417,7 +437,7 @@ def initialize_globals():
     exit_clicked = False
     mark_incorrect = False
     num_to_find = 0
-    load_user_sudoku = False
+    load_user_sudoku = None
 
 
 def load_or_create_new():
@@ -440,8 +460,34 @@ def save_before_exit():
             remove('save.s')
 
 
+def load_user_sudoku_handler():
+    grid, size, squares = load_user_sudoku[0], load_user_sudoku[1], load_user_sudoku[2]
+    t1 = threading.Thread(target=check_user_sudoku_input, args=(grid, size, squares))
+    t1.setDaemon(True)
+    t1.start()
+    num = 0
+    draw_menu_button('', button_menu_2, (243, 243, 243))
+    draw_menu_button('', button_menu_3, (243, 243, 243))
+    while load_user_sudoku:
+        # pygame.event.pump()
+        text = 'Solving' + ('.' * num)
+        draw_menu_button(text, button_menu_1)
+        num += 1
+        pygame.display.update()
+        pygame.time.wait(2000)
+        if num == 4:
+            num = 0
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return 'exit'
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if check_button_clicked(button_menu_exit, pos):
+                    return 'exit'
+
+
 def game_loop():
-    global window
+    global window, exit_clicked
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
 
@@ -451,6 +497,11 @@ def game_loop():
     run = True
     load_or_create_new()
     while run:
+        global load_user_sudoku
+        if type(load_user_sudoku) is tuple:
+            task = load_user_sudoku_handler()
+            if task == 'exit':
+                break
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
