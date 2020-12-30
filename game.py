@@ -8,17 +8,8 @@ import threading
 global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
     exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
 
-window_width = 1000
-window_height = 800
-# static buttons positions and size
-button_9_data = (window_width - 180, 100, 70, 40)
-button_16_data = (window_width - 90, 100, 70, 40)
-button_menu_1 = (window_width - 180, 180, 160, 50)
-button_menu_2 = (window_width - 180, 250, 160, 50)
-button_menu_3 = (window_width - 180, 320, 160, 50)
-button_menu_4 = (window_width - 180, 390, 160, 50)
-button_menu_5 = (window_width - 180, 460, 160, 50)
-button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
+global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2,\
+    button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size
 
 
 pygame.init()
@@ -30,7 +21,7 @@ class Puzzle:
         self.size = size
         self.number_of_squares = number_of_squares
         self.solution = solution
-        self.board_width = window_width - 199
+        self.board_width = window_width - int((window_width*19.9)/100)
         self.board_height = window_height
         self.selected = None
         self.solution = solution if solution is not False else \
@@ -101,6 +92,9 @@ class Puzzle:
 
     def get_num_to_find(self):
         return self.num_to_find
+
+    def get_board_width(self):
+        return self.board_width
 
     def solve_board(self):
         for row in range(self.size):
@@ -233,7 +227,9 @@ def draw_board_size_buttons():
     window.blit(text, (button_16.center[0] - text.get_width() / 2, button_16.center[1] - text.get_height() / 2))
 
 
-def draw_menu_button(text, button_data, button_fill=(113, 183, 253), size=30, width=0):
+def draw_menu_button(text, button_data, button_fill=(113, 183, 253), size=None, width=0):
+    if size is None:
+        size = buttons_font_size
     fnt = pygame.font.SysFont("comicsans", size)
     button_new = pygame.draw.rect(window, button_fill, button_data, border_radius=10, width=width)
     text = fnt.render(text, True, (0, 0, 0))
@@ -257,12 +253,12 @@ def draw_user_input_menu():
 
 def draw_main_menu():
     draw_board_size_buttons()
-    draw_menu_button('New Sudoku', button_menu_1)
+    draw_menu_button('New Sudoku', button_menu_1, size=buttons_font_size)
     draw_menu_button('Input Sudoku', button_menu_2)
     draw_menu_button('Reset', button_menu_3)
     draw_menu_button('Solve', button_menu_4)
     if mark_incorrect:
-        draw_menu_button('Showing mistakes', button_menu_5, (255, 0, 0), size=25, width=5)
+        draw_menu_button('Showing mistakes', button_menu_5, (255, 0, 0), size=int((window_width*2.5)/100), width=5)
     else:
         draw_menu_button('Hiding incorrect', button_menu_5, (140, 140, 140))
 
@@ -401,6 +397,34 @@ def click_buttons(pos):
         main_menu(pos)
 
 
+def initialize_globals_sizes():
+    global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
+        button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size
+    window_width = 900
+    window_height = 720
+    # static buttons positions and size
+    general_pos = int((window_width * 18) / 100)
+    general_button_width = int((window_width * 16) / 100)
+    general_button_height = int((window_height * 6.25) / 100)
+    size_button_y = int((window_height * 12.5) / 100)
+    size_button_width = int((window_width * 7) / 100)
+    size_button_height = int((window_height * 5) / 100)
+
+    button_9_data = (window_width - general_pos, size_button_y, size_button_width, size_button_height)
+    button_16_data = (window_width - int((window_width * 9) / 100), size_button_y,
+                      size_button_width, size_button_height)
+
+    button_menu_1 = (window_width - general_pos, 180, general_button_width, general_button_height)
+    button_menu_2 = (window_width - general_pos, 250, general_button_width, general_button_height)
+    button_menu_3 = (window_width - general_pos, 320, general_button_width, general_button_height)
+    button_menu_4 = (window_width - general_pos, 390, general_button_width, general_button_height)
+    button_menu_5 = (window_width - general_pos, 460, general_button_width, general_button_height)
+    button_menu_exit = (window_width - general_pos, window_height - int(window_height / 10),
+                        general_button_width, general_button_height)
+
+    buttons_font_size = int((window_width*3)/100)
+
+
 def initialize_globals():
     global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
         exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
@@ -454,7 +478,6 @@ def load_user_sudoku_handler():
     draw_menu_button('', button_menu_2, (243, 243, 243))
     draw_menu_button('', button_menu_3, (243, 243, 243))
     while load_user_sudoku:
-        # pygame.event.pump()
         text = 'Solving' + ('.' * num)
         draw_menu_button(text, button_menu_1)
         num += 1
@@ -473,6 +496,7 @@ def load_user_sudoku_handler():
 
 def game_loop():
     global window, exit_clicked
+    initialize_globals_sizes()
     window = pygame.display.set_mode([window_width, window_height], pygame.SCALED)
     pygame.display.set_caption("Sudoku Game")
     pygame.display.set_allow_screensaver(True)
@@ -499,7 +523,7 @@ def game_loop():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if pos[0] < 800 and num_to_find != 0:
+                if pos[0] < board.get_board_width() and num_to_find != 0:
                     clicked = board.click(pos)
                     if clicked:
                         board.select(clicked[0], clicked[1])
