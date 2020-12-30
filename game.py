@@ -473,7 +473,7 @@ def load_user_sudoku_handler():
 
 def game_loop():
     global window, exit_clicked
-    window = pygame.display.set_mode([window_width, window_height])
+    window = pygame.display.set_mode([window_width, window_height], pygame.SCALED)
     pygame.display.set_caption("Sudoku Game")
     pygame.display.set_allow_screensaver(True)
 
