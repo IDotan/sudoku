@@ -83,10 +83,8 @@ class Puzzle:
             self.cubes[row][col].set_val(0)
 
     def select(self, row, col):
-        # Reset all other
-        for i in range(self.size):
-            for j in range(self.size):
-                self.cubes[i][j].selected = False
+        if self.selected is not None:
+            self.cubes[self.selected[0]][self.selected[1]].selected = False
         if row != -1:
             self.cubes[row][col].selected = True
             self.selected = (row, col)
@@ -179,6 +177,13 @@ class Cube:
     def solve_cube(self):
         if not self.base:
             self.val = self.correct_val
+
+    def update_cube(self):
+        self.draw_cube()
+        x = self.col * self.cube_width
+        y = self.row * self.cube_width
+        update = pygame.Rect(x, y, x + self.cube_width, y + self.cube_width)
+        pygame.display.update(update)
 
 
 def difficulties_to_attempts(size, difficulties):
@@ -470,6 +475,7 @@ def game_loop():
     global window, exit_clicked
     window = pygame.display.set_mode([window_width, window_height])
     pygame.display.set_caption("Sudoku Game")
+    pygame.display.set_allow_screensaver(True)
 
     initialize_globals()
 
