@@ -126,6 +126,10 @@ class Cube:
         global num_to_find
         if value == self.correct_val:
             num_to_find -= 1
+        elif self.size == 16 and self.correct_val > 9 and self.val == 1:
+            temp = self.correct_val - 10
+            if value == temp:
+                num_to_find -= 1
         elif value != self.correct_val and self.val == self.correct_val:
             num_to_find += 1
 
@@ -139,6 +143,8 @@ class Cube:
                     self.val = int(temp_val)
                 else:
                     self.val = value
+        if num_to_find == 0:
+            self.selected = False
 
     def get_val(self):
         return self.val
@@ -400,9 +406,12 @@ def click_buttons(pos):
 def initialize_globals_sizes():
     global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
         button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size
+    # ratio 1.25, width = 1.25 * height
+    # window_width = 1000
+    # window_height = 800
     window_width = 900
     window_height = 720
-    # static buttons positions and size
+
     general_pos = int((window_width * 18) / 100)
     general_button_width = int((window_width * 16) / 100)
     general_button_height = int((window_height * 6.25) / 100)
