@@ -21,7 +21,7 @@ button_menu_5 = (window_width - 180, 460, 160, 50)
 button_menu_exit = (window_width - 180, window_height - 80, 160, 50)
 
 
-pygame.font.init()
+pygame.init()
 
 
 class Puzzle:
@@ -335,7 +335,7 @@ def menu_status_user_input_lock_clicked():
         temp.append(temp_row)
     size = board.get_size()
     squares = board.get_number_of_squares()
-    load_user_sudoku = (temp, size, squares)
+    load_user_sudoku = [temp, size, squares]
 
 
 def menu_status_user_input(pos):
@@ -442,8 +442,7 @@ def save_before_exit():
 
 
 def load_user_sudoku_handler():
-    grid, size, squares = load_user_sudoku[0], load_user_sudoku[1], load_user_sudoku[2]
-    t1 = threading.Thread(target=check_user_sudoku_input, args=(grid, size, squares))
+    t1 = threading.Thread(target=check_user_sudoku_input, args=(*load_user_sudoku,))
     t1.setDaemon(True)
     t1.start()
     num = 0
@@ -479,7 +478,7 @@ def game_loop():
     load_or_create_new()
     while run:
         global load_user_sudoku
-        if type(load_user_sudoku) is tuple:
+        if type(load_user_sudoku) is list:
             task = load_user_sudoku_handler()
             if task == 'exit':
                 break
