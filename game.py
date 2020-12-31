@@ -33,7 +33,7 @@ class Puzzle:
         self.size = size
         self.number_of_squares = number_of_squares
         self.solution = solution
-        self.board_width = window_width - int((window_width * 20) / 100)
+        self.board_width = window_width - int((window_width * 19.9) / 100)
         self.board_height = window_height
         self.selected = None
         self.solution = solution if solution is not False else \
@@ -161,7 +161,7 @@ class Puzzle:
         """
         | resize the board size
         """
-        self.board_width = window_width - int((window_width * 20) / 100)
+        self.board_width = window_width - int((window_width * 19.9) / 100)
         self.board_height = window_height
         for row in range(self.size):
             for col in range(self.size):
@@ -717,12 +717,23 @@ def load_user_sudoku_handler():
                     return 'exit'
 
 
-def window_resize(event):
+def windows_board_resize(width, height):
+    """
+    | resize the window and the sudoku board
+    :param width: width for the new window
+    :param height: height for the window
+    """
+    global window
+    initialize_globals_sizes(width, height)
+    board.resize()
+    window = pygame.display.set_mode([window_width, window_height], pygame.RESIZABLE)
+
+
+def window_resize_event_handler(event):
     """
     | resize the window and the grid
     :param event: pygame.event object
     """
-    global window
     width, height = event.w, event.h
     if width != window_width and height == window_height:
         height = int(width / 1.25)
@@ -736,9 +747,7 @@ def window_resize(event):
     if width > 1200:
         width = 1200
         height = 960
-    initialize_globals_sizes(width, height)
-    board.resize()
-    window = pygame.display.set_mode([window_width, window_height], pygame.RESIZABLE)
+    windows_board_resize(width, height)
 
 
 def game_loop():
@@ -784,7 +793,7 @@ def game_loop():
 
             # need to find a fix for grid spillover at some sizes
             # if event.type == pygame.VIDEORESIZE:
-            #     window_resize(event)
+            #     window_resize_event_handler(event)
 
         if exit_clicked:
             break
