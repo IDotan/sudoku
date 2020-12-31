@@ -1,3 +1,6 @@
+"""
+| gamepy module for the sudoku game
+"""
 import sudoku
 from copy import deepcopy
 import pygame
@@ -9,12 +12,15 @@ global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_
     exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
 
 global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
-    button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size
+    button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size
 
 pygame.init()
 
 
 class Puzzle:
+    """
+    | class for the sudoku grid
+    """
     def __init__(self, grid, size, number_of_squares, solution=False):
         self.base_grid = grid
         self.size = size
@@ -34,6 +40,9 @@ class Puzzle:
         self.num_to_find = num_to_find
 
     def reset_board(self):
+        """
+        | reset the board to have only the base numbers
+        """
         for row in range(self.size):
             for col in range(self.size):
                 self.cubes[row][col].reset_cube()
@@ -41,6 +50,9 @@ class Puzzle:
         num_to_find = self.num_to_find
 
     def draw_board(self):
+        """
+        | draw the grid lines of the board and then send to draw cube one by one
+        """
         gap = self.board_width // self.size
         for i in range(self.size + 1):
             if i in range(0, self.size + 1, self.number_of_squares):
@@ -59,6 +71,11 @@ class Puzzle:
                 self.cubes[row][col].draw_cube()
 
     def click(self, pos):
+        """
+        | find the [row,col] clicked in the board
+        :param pos: [x,y] positions of the mouse click
+        :return: [row. col] clicked in the board
+        """
         if pos[0] < self.board_width and pos[1] < self.board_height:
             gap = self.board_width / self.size
             x = pos[0] // gap
@@ -68,11 +85,19 @@ class Puzzle:
             return None
 
     def delete_selected(self):
+        """
+        | delete the number of the selected cube
+        """
         if self.selected is not None:
             row, col = self.selected
             self.cubes[row][col].set_val(0)
 
     def select(self, row, col):
+        """
+        | select the clicked cube and remove the previous selected one
+        :param row: row of the cube to select
+        :param col: col of the cube to select
+        """
         if self.selected is not None:
             self.cubes[self.selected[0]][self.selected[1]].selected = False
         if row != -1:
@@ -80,22 +105,45 @@ class Puzzle:
             self.selected = (row, col)
 
     def enter_value(self, value):
+        """
+        | enter value to the selected cube
+        :param value: int value to enter
+        """
         row, col = self.selected
         self.cubes[row][col].set_val(value)
 
     def get_size(self):
+        """
+        | get the size of the board
+        :return: size of the board
+        """
         return self.size
 
     def get_number_of_squares(self):
+        """
+        | get the number of squares in the board
+        :return: number of squares in the board
+        """
         return self.number_of_squares
 
     def get_num_to_find(self):
+        """
+        | get the number of empty/incorrect cubes
+        :return: number of empty/incorrect cubes
+        """
         return self.num_to_find
 
     def get_board_width(self):
+        """
+        | get the width of the board
+        :return: width of the board
+        """
         return self.board_width
 
     def solve_board(self):
+        """
+        | reveal the solution of the board
+        """
         for row in range(self.size):
             for col in range(self.size):
                 self.cubes[row][col].solve_cube()
@@ -104,6 +152,9 @@ class Puzzle:
 
 
 class Cube:
+    """
+    | class for cubes in the Puzzle
+    """
     def __init__(self, val, row, col, correct_val, board_width, size):
         self.val = val
         self.row = row
@@ -118,10 +169,17 @@ class Cube:
             num_to_find += 1
 
     def reset_cube(self):
+        """
+        | set cube to 0 if its not a base number cube
+        """
         if not self.base:
             self.val = 0
 
     def set_val(self, value):
+        """
+        | set the value of the cube
+        :param value: value to set the cube to
+        """
         global num_to_find
         if value == self.correct_val:
             num_to_find -= 1
@@ -146,9 +204,16 @@ class Cube:
             self.selected = False
 
     def get_val(self):
+        """
+        | get the value of the cube
+        :return: cube's value
+        """
         return self.val
 
     def draw_cube(self):
+        """
+        | draw the cube value and the selected mark when selected
+        """
         font_size = 75
         if self.size == 16:
             font_size = 45
@@ -174,10 +239,17 @@ class Cube:
             pygame.draw.rect(window, (71, 170, 255), (x, y, self.cube_width, self.cube_width), 3)
 
     def solve_cube(self):
+        """
+        | set cube value to it's correct value
+        """
         if not self.base:
             self.val = self.correct_val
 
     def update_cube(self):
+        """
+        | update visually the cube
+        :return:
+        """
         self.draw_cube()
         x = self.col * self.cube_width
         y = self.row * self.cube_width
@@ -186,6 +258,12 @@ class Cube:
 
 
 def difficulties_to_attempts(size, difficulties):
+    """
+    | convert difficulties to attempts
+    :param size: size of the board
+    :param difficulties: 1-easy 2-medium 3-hard, what arbitrary difficulty the board will be.
+    :return: attempts to use in the board creation
+    """
     attempts = 0
     if difficulties == 1:
         attempts = 3
@@ -215,6 +293,9 @@ def new_board(size, number_of_squares, difficulties):
 
 
 def draw_board_size_buttons():
+    """
+    | draw side buttons of board size control
+    """
     button_9_fill = (113, 183, 253)
     button_16_fill = (140, 140, 140)
     global size_9
@@ -224,8 +305,7 @@ def draw_board_size_buttons():
     button_9 = pygame.draw.rect(window, button_9_fill, button_9_data, border_radius=10)
     button_16 = pygame.draw.rect(window, button_16_fill, button_16_data, border_radius=10)
     font_color = (0, 0, 0)
-    font_size = 35
-    fnt = pygame.font.SysFont("comicsans", font_size)
+    fnt = pygame.font.SysFont("comicsans", size_buttons_font_size)
     text = fnt.render('9x9', True, font_color)
     window.blit(text, (button_9.center[0] - text.get_width() / 2, button_9.center[1] - text.get_height() / 2))
     text = fnt.render('16x16', True, font_color)
@@ -233,6 +313,14 @@ def draw_board_size_buttons():
 
 
 def draw_menu_button(text, button_data, button_fill=(113, 183, 253), size=None, width=0):
+    """
+    | draw side button
+    :param text: string to use for the button
+    :param button_data: list of the button position width and height. (x,y,width,height)
+    :param button_fill: color of the button. default (113, 183, 253)
+    :param size: button font size. default to use buttons_font_size global
+    :param width: width of the button fill. default 0
+    """
     if size is None:
         size = buttons_font_size
     fnt = pygame.font.SysFont("comicsans", size)
@@ -242,6 +330,9 @@ def draw_menu_button(text, button_data, button_fill=(113, 183, 253), size=None, 
 
 
 def draw_difficulty_menu():
+    """
+    | draw difficulty menu
+    """
     draw_menu_button('Easy', button_menu_1)
     draw_menu_button('Medium', button_menu_2)
     draw_menu_button('Hard', button_menu_3)
@@ -249,6 +340,9 @@ def draw_difficulty_menu():
 
 
 def draw_user_input_menu():
+    """
+    | draw user input menu and unsolvable 'tag' when needed
+    """
     if user_input_menu_unsolvable:
         draw_menu_button('unsolvable', (window_width - 165, 120, 130, 40), (255, 0, 0), width=5)
     draw_menu_button('Lock In', button_menu_1)
@@ -257,6 +351,9 @@ def draw_user_input_menu():
 
 
 def draw_main_menu():
+    """
+    | draw the main menu
+    """
     draw_board_size_buttons()
     draw_menu_button('New Sudoku', button_menu_1, size=buttons_font_size)
     draw_menu_button('Input Sudoku', button_menu_2)
@@ -265,10 +362,13 @@ def draw_main_menu():
     if mark_incorrect:
         draw_menu_button('Showing mistakes', button_menu_5, (255, 0, 0), size=int((window_width * 2.5) / 100), width=5)
     else:
-        draw_menu_button('Hiding incorrect', button_menu_5, (140, 140, 140))
+        draw_menu_button('Hiding mistakes', button_menu_5, (140, 140, 140))
 
 
 def draw_board():
+    """
+    | draw the board and send to sub-function according to the needed size bar
+    """
     window.fill((243, 243, 243))
 
     if difficulty_pick:
@@ -283,6 +383,12 @@ def draw_board():
 
 
 def check_button_clicked(button, pos):
+    """
+    | check if the given button was clicked
+    :param button: the button to check, list of the button position width and height. (x,y,width,height)
+    :param pos: the position clicked [x,y]
+    :return: True when button was clicked
+    """
     if button[0] <= pos[0] <= button[0] + button[2] \
             and button[1] <= pos[1] <= button[1] + button[3]:
         return True
@@ -290,6 +396,10 @@ def check_button_clicked(button, pos):
 
 
 def new_board_clicked(difficulty):
+    """
+    | create new sudoku board
+    :param difficulty: 1-easy 2-medium 3-hard, what arbitrary difficulty the board will be.
+    """
     global board, num_to_find
     num_to_find = 0
     if size_9:
@@ -301,6 +411,11 @@ def new_board_clicked(difficulty):
 
 
 def menu_status_difficult(pos):
+    """
+    | action to take when a button was clicked in the difficult menu.
+    | call new_board_clicked() with the selected difficulty or go back according to the clicked button.
+    :param pos: position of the click [x,y]
+    """
     global difficulty_pick
     if check_button_clicked(button_menu_1, pos):
         new_board_clicked(1)
@@ -316,6 +431,12 @@ def menu_status_difficult(pos):
 
 
 def check_user_sudoku_input(grid, size, squares):
+    """
+    | duplicates check of user input grid and set flags for solving process
+    :param grid: user inputted grid to check
+    :param size: the size of the grid
+    :param squares: number of squares in the grid
+    """
     global user_input_menu, board, user_input_menu_unsolvable, num_to_find, load_user_sudoku
     solution = False
     load_user_sudoku = True
@@ -332,6 +453,10 @@ def check_user_sudoku_input(grid, size, squares):
 
 
 def menu_status_user_input_lock_clicked():
+    """
+    | action to take when user click to lock in his sudoku grid.
+    | collect the user input to a grid and set load_user_sudoku global flag with the needed data
+    """
     global board, load_user_sudoku
     temp = []
     for row in range(board.get_size()):
@@ -345,6 +470,10 @@ def menu_status_user_input_lock_clicked():
 
 
 def menu_status_user_input(pos):
+    """
+    | action to take when a button was clicked in the user sudoku input menu
+    :param pos: position of the click. [x,y]
+    """
     global user_input_menu, board, user_input_menu_unsolvable
     if check_button_clicked(button_menu_1, pos):
         menu_status_user_input_lock_clicked()
@@ -358,6 +487,11 @@ def menu_status_user_input(pos):
 
 
 def create_empty_board(size=9, squares=3):
+    """
+    | create sudoku grid with 0 in every position
+    :param size: size of the board to create. default 9
+    :param squares: numbers of squares in the board. default 3
+    """
     global board
     # start with empty 9x9 board
     board = sudoku.create_board(size)
@@ -365,6 +499,10 @@ def create_empty_board(size=9, squares=3):
 
 
 def main_menu(pos):
+    """
+    | find what button was clicked in the main menu and act accordingly
+    :param pos: position of the click
+    """
     global size_9, board, difficulty_pick, user_input_menu, mark_incorrect
     if check_button_clicked(button_9_data, pos):
         size_9 = True
@@ -391,6 +529,10 @@ def main_menu(pos):
 
 
 def click_buttons(pos):
+    """
+    | check if clicked to exit and if not go to the relevant menu
+    :param pos: position of the click
+    """
     if check_button_clicked(button_menu_exit, pos):
         global exit_clicked
         exit_clicked = True
@@ -403,8 +545,11 @@ def click_buttons(pos):
 
 
 def initialize_globals_sizes():
+    """
+    | initialize global sizes, setup to mid run and easy switch size.
+    """
     global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
-        button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size
+        button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size
     # ratio 1.25, width = 1.25 * height
     # window_width = 1000
     # window_height = 800
@@ -431,9 +576,13 @@ def initialize_globals_sizes():
                         general_button_width, general_button_height)
 
     buttons_font_size = int((window_width * 3) / 100)
+    size_buttons_font_size = int((window_width * 3.5) / 100)
 
 
 def initialize_globals():
+    """
+    | initialize globals flags.
+    """
     global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
         exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
     size_9 = True
@@ -447,6 +596,11 @@ def initialize_globals():
 
 
 def get_key(event):
+    """
+    | get what key was pressed.
+    :param event: pygame.KEYDOWN event to get its key.
+    :return: int if number was pressed or string of the action to take.
+    """
     key = None
     try:
         key = int(event.unicode)
@@ -459,6 +613,9 @@ def get_key(event):
 
 
 def load_or_create_new():
+    """
+    | load saved game or create new one when there is no save.
+    """
     global board, num_to_find
     if path.isfile('save.s'):
         save = pickle.load(open("save.s", "rb"))
@@ -470,6 +627,9 @@ def load_or_create_new():
 
 
 def save_before_exit():
+    """
+    | save active game before closing if the sudoku is not finished.
+    """
     if num_to_find != 0 and user_input_menu is False:
         save = (board, num_to_find)
         pickle.dump(save, open("save.s", "wb"))
@@ -478,19 +638,31 @@ def save_before_exit():
             remove('save.s')
 
 
-def load_user_sudoku_handler():
-    t1 = threading.Thread(target=check_user_sudoku_input, args=(*load_user_sudoku,))
-    t1.setDaemon(True)
-    t1.start()
-    num = 0
-
-    # delete button 2 and 3
+def delete_button_2_and_3():
+    """
+    | delete buttons 2&3 from the side bar
+    """
     whitespace_buttons_buttons = button_menu_2[0] + button_menu_2[3] - button_menu_3[0]
     delete_buttons_height = button_menu_2[3] + button_menu_3[3] + whitespace_buttons_buttons
     delete_buttons = pygame.Rect(button_menu_2[0], button_menu_2[1], button_menu_2[2], delete_buttons_height)
     pygame.draw.rect(window, (243, 243, 243), delete_buttons)
     pygame.display.update(delete_buttons)
 
+
+def load_user_sudoku_handler():
+    """
+    | try to solve user input sudoku in a thread, while showing solving 'icon'.
+    | take care of pygame.event to prevent pygame to be unresponsive.
+    | allow only exit when solving process is active.
+    :return: 'exit' as string when user want to exit.
+    """
+    t1 = threading.Thread(target=check_user_sudoku_input, args=(*load_user_sudoku,))
+    t1.setDaemon(True)
+    t1.start()
+
+    delete_button_2_and_3()
+
+    num = 0
     while load_user_sudoku:
         text = 'Solving' + ('.' * num)
         draw_menu_button(text, button_menu_1)
@@ -510,6 +682,9 @@ def load_user_sudoku_handler():
 
 
 def game_loop():
+    """
+    | main game loop.
+    """
     global window, exit_clicked
     initialize_globals_sizes()
     window = pygame.display.set_mode([window_width, window_height], pygame.SCALED)
