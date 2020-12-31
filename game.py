@@ -11,8 +11,8 @@ import threading
 global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
     exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
 
-global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
-    button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size
+global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, button_menu_3, \
+    button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, num_font, num_font_small
 
 pygame.init()
 
@@ -22,11 +22,18 @@ class Puzzle:
     | class for the sudoku grid
     """
     def __init__(self, grid, size, number_of_squares, solution=False):
+        """
+        | create the puzzle object
+        :param grid: the grid of the board
+        :param size: the size of the board
+        :param number_of_squares: number of squares in the board
+        :param solution: board's solution
+        """
         self.base_grid = grid
         self.size = size
         self.number_of_squares = number_of_squares
         self.solution = solution
-        self.board_width = window_width - int((window_width * 19.9) / 100)
+        self.board_width = window_width - int((window_width * 20) / 100)
         self.board_height = window_height
         self.selected = None
         self.solution = solution if solution is not False else \
@@ -150,12 +157,31 @@ class Puzzle:
         global num_to_find
         num_to_find = 0
 
+    def resize(self):
+        """
+        | resize the board size
+        """
+        self.board_width = window_width - int((window_width * 20) / 100)
+        self.board_height = window_height
+        for row in range(self.size):
+            for col in range(self.size):
+                self.cubes[row][col].update_size(self.board_width, self.size)
+
 
 class Cube:
     """
-    | class for cubes in the Puzzle
+    | sub-class for cubes in the Puzzle
     """
     def __init__(self, val, row, col, correct_val, board_width, size):
+        """
+        | create the cube object
+        :param val: cubes value
+        :param row: row the cube is in its parent grid
+        :param col: col the cube is in its parent grid
+        :param correct_val: correct value of the cube
+        :param board_width: width of the cube parent grid
+        :param size: size of the cube parent grid
+        """
         self.val = val
         self.row = row
         self.col = col
@@ -214,9 +240,9 @@ class Cube:
         """
         | draw the cube value and the selected mark when selected
         """
-        font_size = 75
+        font_size = num_font
         if self.size == 16:
-            font_size = 45
+            font_size = num_font_small
         fnt = pygame.font.SysFont("comicsans", font_size)
         x = self.col * self.cube_width
         y = self.row * self.cube_width
@@ -248,13 +274,20 @@ class Cube:
     def update_cube(self):
         """
         | update visually the cube
-        :return:
         """
         self.draw_cube()
         x = self.col * self.cube_width
         y = self.row * self.cube_width
         update = pygame.Rect(x, y, x + self.cube_width, y + self.cube_width)
         pygame.display.update(update)
+
+    def update_size(self, board_width, size):
+        """
+        | update cube size
+        :param board_width: width of the board the cube is in
+        :param size: the size of the board the cube is in
+        """
+        self.cube_width = board_width // size
 
 
 def difficulties_to_attempts(size, difficulties):
@@ -544,17 +577,18 @@ def click_buttons(pos):
         main_menu(pos)
 
 
-def initialize_globals_sizes():
+def initialize_globals_sizes(width=900, height=720):
     """
     | initialize global sizes, setup to mid run and easy switch size.
     """
-    global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
-        button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size
+    global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, button_menu_3, \
+        button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, \
+        num_font, num_font_small
     # ratio 1.25, width = 1.25 * height
     # window_width = 1000
     # window_height = 800
-    window_width = 900
-    window_height = 720
+    window_width = width
+    window_height = height
 
     general_pos = int((window_width * 18) / 100)
     general_button_width = int((window_width * 16) / 100)
@@ -577,6 +611,8 @@ def initialize_globals_sizes():
 
     buttons_font_size = int((window_width * 3) / 100)
     size_buttons_font_size = int((window_width * 3.5) / 100)
+    num_font = int((window_width * 7.5) / 100)
+    num_font_small = int((window_width * 4.5) / 100)
 
 
 def initialize_globals():
@@ -681,6 +717,30 @@ def load_user_sudoku_handler():
                     return 'exit'
 
 
+def window_resize(event):
+    """
+    | resize the window and the grid
+    :param event: pygame.event object
+    """
+    global window
+    width, height = event.w, event.h
+    if width != window_width and height == window_height:
+        height = int(width / 1.25)
+    elif width == window_width and height != window_height:
+        width = int(height * 1.25)
+    else:
+        height = int(width / 1.25)
+    if width < 900:
+        width = 900
+        height = 720
+    if width > 1200:
+        width = 1200
+        height = 960
+    initialize_globals_sizes(width, height)
+    board.resize()
+    window = pygame.display.set_mode([window_width, window_height], pygame.RESIZABLE)
+
+
 def game_loop():
     """
     | main game loop.
@@ -721,6 +781,10 @@ def game_loop():
                 else:
                     board.select(-1, -1)
                     click_buttons(pos)
+
+            # need to find a fix for grid spillover at some sizes
+            # if event.type == pygame.VIDEORESIZE:
+            #     window_resize(event)
 
         if exit_clicked:
             break
