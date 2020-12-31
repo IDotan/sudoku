@@ -8,9 +8,8 @@ import threading
 global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
     exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
 
-global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2,\
+global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, \
     button_menu_3, button_menu_4, button_menu_5, button_menu_exit, buttons_font_size
-
 
 pygame.init()
 
@@ -21,7 +20,7 @@ class Puzzle:
         self.size = size
         self.number_of_squares = number_of_squares
         self.solution = solution
-        self.board_width = window_width - int((window_width*19.9)/100)
+        self.board_width = window_width - int((window_width * 19.9) / 100)
         self.board_height = window_height
         self.selected = None
         self.solution = solution if solution is not False else \
@@ -264,7 +263,7 @@ def draw_main_menu():
     draw_menu_button('Reset', button_menu_3)
     draw_menu_button('Solve', button_menu_4)
     if mark_incorrect:
-        draw_menu_button('Showing mistakes', button_menu_5, (255, 0, 0), size=int((window_width*2.5)/100), width=5)
+        draw_menu_button('Showing mistakes', button_menu_5, (255, 0, 0), size=int((window_width * 2.5) / 100), width=5)
     else:
         draw_menu_button('Hiding incorrect', button_menu_5, (140, 140, 140))
 
@@ -431,7 +430,7 @@ def initialize_globals_sizes():
     button_menu_exit = (window_width - general_pos, window_height - int(window_height / 10),
                         general_button_width, general_button_height)
 
-    buttons_font_size = int((window_width*3)/100)
+    buttons_font_size = int((window_width * 3) / 100)
 
 
 def initialize_globals():
@@ -484,13 +483,20 @@ def load_user_sudoku_handler():
     t1.setDaemon(True)
     t1.start()
     num = 0
-    draw_menu_button('', button_menu_2, (243, 243, 243))
-    draw_menu_button('', button_menu_3, (243, 243, 243))
+
+    # delete button 2 and 3
+    whitespace_buttons_buttons = button_menu_2[0] + button_menu_2[3] - button_menu_3[0]
+    delete_buttons_height = button_menu_2[3] + button_menu_3[3] + whitespace_buttons_buttons
+    delete_buttons = pygame.Rect(button_menu_2[0], button_menu_2[1], button_menu_2[2], delete_buttons_height)
+    pygame.draw.rect(window, (243, 243, 243), delete_buttons)
+    pygame.display.update(delete_buttons)
+
     while load_user_sudoku:
         text = 'Solving' + ('.' * num)
         draw_menu_button(text, button_menu_1)
         num += 1
-        pygame.display.update()
+        solving_update = pygame.Rect(button_menu_1)
+        pygame.display.update(solving_update)
         pygame.time.wait(2000)
         if num == 4:
             num = 0
