@@ -23,6 +23,7 @@ solution = [
     [1, 6, 7, 2, 4, 9, 5, 8, 3]
 ]
 game.initialize_globals()
+game.initialize_globals_sizes()
 
 
 def test_puzzle_reset():
