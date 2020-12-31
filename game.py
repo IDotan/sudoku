@@ -585,6 +585,7 @@ def initialize_globals_sizes(width=900, height=720):
         button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, \
         num_font, num_font_small
     # ratio 1.25, width = 1.25 * height
+    # width need to be in jumps of 100
     # window_width = 1000
     # window_height = 800
     window_width = width
@@ -593,6 +594,8 @@ def initialize_globals_sizes(width=900, height=720):
     general_pos = int((window_width * 18) / 100)
     general_button_width = int((window_width * 16) / 100)
     general_button_height = int((window_height * 6.25) / 100)
+    general_button_top_y = int((window_height * 25) / 100)
+    general_button_gap = int((window_height * 3.47) / 100)
     size_button_y = int((window_height * 12.5) / 100)
     size_button_width = int((window_width * 7) / 100)
     size_button_height = int((window_height * 5) / 100)
@@ -601,11 +604,15 @@ def initialize_globals_sizes(width=900, height=720):
     button_16_data = (window_width - int((window_width * 9) / 100), size_button_y,
                       size_button_width, size_button_height)
 
-    button_menu_1 = (window_width - general_pos, 180, general_button_width, general_button_height)
-    button_menu_2 = (window_width - general_pos, 250, general_button_width, general_button_height)
-    button_menu_3 = (window_width - general_pos, 320, general_button_width, general_button_height)
-    button_menu_4 = (window_width - general_pos, 390, general_button_width, general_button_height)
-    button_menu_5 = (window_width - general_pos, 460, general_button_width, general_button_height)
+    button_menu_1 = (window_width - general_pos, general_button_top_y, general_button_width, general_button_height)
+    button_menu_2 = (window_width - general_pos, (general_button_top_y + (general_button_height + general_button_gap)),
+                     general_button_width, general_button_height)
+    button_menu_3 = (window_width - general_pos, (general_button_top_y +
+                     (2 * (general_button_height + general_button_gap))), general_button_width, general_button_height)
+    button_menu_4 = (window_width - general_pos, (general_button_top_y +
+                     (3 * (general_button_height + general_button_gap))), general_button_width, general_button_height)
+    button_menu_5 = (window_width - general_pos, (general_button_top_y +
+                     (4 * (general_button_height + general_button_gap))), general_button_width, general_button_height)
     button_menu_exit = (window_width - general_pos, window_height - int(window_height / 10),
                         general_button_width, general_button_height)
 
@@ -651,12 +658,14 @@ def get_key(event):
 def load_or_create_new():
     """
     | load saved game or create new one when there is no save.
+    :return: [width, height] to use for the window
     """
     global board, num_to_find
     if path.isfile('save.s'):
         save = pickle.load(open("save.s", "rb"))
         board = save[0]
         num_to_find = save[1]
+        windows_board_resize(save[2], save[3])
     else:
         # start with empty 9x9 board
         new_board_clicked(2)
@@ -667,7 +676,7 @@ def save_before_exit():
     | save active game before closing if the sudoku is not finished.
     """
     if num_to_find != 0 and user_input_menu is False:
-        save = (board, num_to_find)
+        save = (board, num_to_find, window_width, window_height)
         pickle.dump(save, open("save.s", "wb"))
     elif num_to_find == 0:
         if path.isfile('save.s'):
@@ -729,24 +738,47 @@ def windows_board_resize(width, height):
     window = pygame.display.set_mode([window_width, window_height], pygame.RESIZABLE)
 
 
+def fix_resize_scale(width):
+    """
+    | find if the user want to make the window larger or smaller.
+    | fix the size to the 3 presets
+    :param width: width the user scaled to
+    :return: width, height - new window scale
+    """
+    height = 0
+    scales = [[900, 720], [1000, 800], [1100, 880]]
+    if width < 900:
+        width, height = scales[0]
+    elif width > 1100:
+        width, height = scales[2]
+    else:
+        if window_width < width:
+            increase = True
+        else:
+            increase = False
+        i = 0
+        while i < 2:
+            scale_test = scales[i][0], scales[i + 1][0]
+            if scale_test[0] <= width <= scale_test[1]:
+                if increase:
+                    width, height = scales[i + 1]
+                else:
+                    width, height = scales[i]
+                break
+            i += 1
+    return width, height
+
+
 def window_resize_event_handler(event):
     """
     | resize the window and the grid
     :param event: pygame.event object
     """
     width, height = event.w, event.h
-    if width != window_width and height == window_height:
-        height = int(width / 1.25)
-    elif width == window_width and height != window_height:
+    if height != window_height and width == window_width:
         width = int(height * 1.25)
-    else:
-        height = int(width / 1.25)
-    if width < 900:
-        width = 900
-        height = 720
-    if width > 1200:
-        width = 1200
-        height = 960
+    width, height = fix_resize_scale(width)
+
     windows_board_resize(width, height)
 
 
@@ -756,11 +788,12 @@ def game_loop():
     """
     global window, exit_clicked
     initialize_globals_sizes()
-    window = pygame.display.set_mode([window_width, window_height], pygame.SCALED)
+    initialize_globals()
+
+    load_or_create_new()
+    window = pygame.display.set_mode([window_width, window_height], pygame.RESIZABLE)
     pygame.display.set_caption("Sudoku Game")
     pygame.display.set_allow_screensaver(True)
-
-    initialize_globals()
 
     key_pressed = None
     run = True
@@ -791,9 +824,8 @@ def game_loop():
                     board.select(-1, -1)
                     click_buttons(pos)
 
-            # need to find a fix for grid spillover at some sizes
-            # if event.type == pygame.VIDEORESIZE:
-            #     window_resize_event_handler(event)
+            if event.type == pygame.VIDEORESIZE:
+                window_resize_event_handler(event)
 
         if exit_clicked:
             break
