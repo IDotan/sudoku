@@ -8,7 +8,7 @@ You can enter your on sudoku and keep solving it in the application.
 * Can play and enter 9x9 and 16x16 sized sudoku.
 * Toggle on/off marking mistakes.
 
-!<img src="example.gif" height="400" />  
+<img src="example.gif" height="400" />  
 
 ### setup and run:
 <details>
