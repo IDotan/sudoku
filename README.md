@@ -2,12 +2,14 @@
 Small and easy to use sudoku game and solver. Infinite number of puzzles to solve with 3 difficulties.
 You can enter your on sudoku and keep solving it in the application.  
 
-###Highlights:
+### Highlights:
 * Endless random sudoku puzzles.
 * Auto save and load incomplete sudoku.
 * Can play and enter 9x9 and 16x16 sized sudoku.
-* Toggle on/off marking mistakes.  
-![Game demo](example.gif =100x100)
+* Toggle on/off marking mistakes.
+
+!<img src="example.gif" height="400" />  
+
 ### setup and run:
 <details>
   <summary>Setup</summary>
