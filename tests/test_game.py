@@ -24,10 +24,10 @@ solution = [
 ]
 game.initialize_globals()
 game.initialize_globals_sizes()
+test = game.Puzzle(grid, 9, 3, solution)
 
 
 def test_puzzle_reset():
-    test = game.Puzzle(grid, 9, 3, solution)
     test.cubes[0][0].set_val(3)
     test.cubes[1][0].set_val(5)
     # assert the change happened
@@ -41,6 +41,33 @@ def test_puzzle_reset():
 
 
 def test_change_base_value():
-    test = game.Puzzle(grid, 9, 3, solution)
     test.cubes[0][3].set_val(7)
     assert test.cubes[0][3].get_val() == 4
+
+
+def test_delete_base():
+    test.select(0, 4)
+    test.delete_selected()
+    assert test.cubes[0][4].get_val() == 9
+
+
+def test_delete():
+    test.select(0, 0)
+    test.enter_value(1)
+    assert test.cubes[0][0].get_val() == 1
+    test.delete_selected()
+    assert test.cubes[0][0].get_val() == 0
+
+
+def test_solve_board():
+    test.solve_board()
+    for row in range(9):
+        for col in range(9):
+            assert test.cubes[row][col].get_val() == solution[row][col]
+
+
+def test_reset_board():
+    test.reset_board()
+    for row in range(9):
+        for col in range(9):
+            assert test.cubes[row][col].get_val() == grid[row][col]
