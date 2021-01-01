@@ -586,9 +586,6 @@ def initialize_globals_sizes(width=900, height=720):
         button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, \
         num_font, num_font_small
     # ratio 1.25, width = 1.25 * height
-    # width need to be in jumps of 100
-    # window_width = 1200
-    # window_height = 960
     window_width = width
     window_height = height
 
@@ -742,7 +739,7 @@ def windows_board_resize(width, height):
 def fix_resize_scale(width):
     """
     | find if the user want to make the window larger or smaller.
-    | fix the size to the 3 presets
+    | fix the size to the 4 presets
     :param width: width the user scaled to
     :return: width, height - new window scale
     """
@@ -751,7 +748,7 @@ def fix_resize_scale(width):
     if width < scales[0][0]:
         width, height = scales[0]
     elif width > scales[-1][0]:
-        width, height = scales[3]
+        width, height = scales[-1]
     else:
         if window_width < width:
             increase = True
