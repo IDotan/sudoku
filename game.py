@@ -9,10 +9,11 @@ from os import path, remove
 import threading
 
 global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
-    exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
+    exit_clicked, mark_incorrect, num_to_find, load_user_sudoku, scale_toggle
 
 global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, button_menu_3, \
-    button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, num_font, num_font_small
+    button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, num_font, \
+    num_font_small, button_scales_toggle
 
 pygame.init()
 
@@ -412,6 +413,10 @@ def draw_board():
     else:
         draw_main_menu()
 
+    if scale_toggle:
+        draw_menu_button('Preset scales', button_scales_toggle, (140, 140, 140))
+    else:
+        draw_menu_button('Free scaling', button_scales_toggle, (0, 210, 14), width=5)
     draw_menu_button('Exit', button_menu_exit, (140, 140, 140))
     board.draw_board()
 
@@ -567,9 +572,15 @@ def click_buttons(pos):
     | check if clicked to exit and if not go to the relevant menu
     :param pos: position of the click
     """
+    global exit_clicked, scale_toggle
     if check_button_clicked(button_menu_exit, pos):
-        global exit_clicked
         exit_clicked = True
+    elif check_button_clicked(button_scales_toggle, pos):
+        if scale_toggle:
+            scale_toggle = False
+        else:
+            scale_toggle = True
+        window_resize_event_handler(window_width, window_height)
     elif difficulty_pick:
         menu_status_difficult(pos)
     elif user_input_menu:
@@ -584,12 +595,12 @@ def initialize_globals_sizes(width=900, height=720):
     """
     global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, button_menu_3, \
         button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, \
-        num_font, num_font_small
+        num_font, num_font_small, button_scales_toggle
     # ratio 1.25, width = 1.25 * height
     window_width = width
     window_height = height
 
-    general_pos = int((window_width * 18) / 100)
+    general_pos = window_width - int((window_width * 18) / 100)
     general_button_width = int((window_width * 16) / 100)
     general_button_height = int((window_height * 6.25) / 100)
     general_button_top_y = int((window_height * 25) / 100)
@@ -598,21 +609,23 @@ def initialize_globals_sizes(width=900, height=720):
     size_button_width = int((window_width * 7) / 100)
     size_button_height = int((window_height * 5) / 100)
 
-    button_9_data = (window_width - general_pos, size_button_y, size_button_width, size_button_height)
+    button_9_data = (general_pos, size_button_y, size_button_width, size_button_height)
     button_16_data = (window_width - int((window_width * 9) / 100), size_button_y,
                       size_button_width, size_button_height)
 
-    button_menu_1 = (window_width - general_pos, general_button_top_y, general_button_width, general_button_height)
-    button_menu_2 = (window_width - general_pos, (general_button_top_y + (general_button_height + general_button_gap)),
+    button_menu_1 = (general_pos, general_button_top_y, general_button_width, general_button_height)
+    button_menu_2 = (general_pos, (general_button_top_y + (general_button_height + general_button_gap)),
                      general_button_width, general_button_height)
-    button_menu_3 = (window_width - general_pos, (general_button_top_y +
+    button_menu_3 = (general_pos, (general_button_top_y +
                      (2 * (general_button_height + general_button_gap))), general_button_width, general_button_height)
-    button_menu_4 = (window_width - general_pos, (general_button_top_y +
+    button_menu_4 = (general_pos, (general_button_top_y +
                      (3 * (general_button_height + general_button_gap))), general_button_width, general_button_height)
-    button_menu_5 = (window_width - general_pos, (general_button_top_y +
+    button_menu_5 = (general_pos, (general_button_top_y +
                      (4 * (general_button_height + general_button_gap))), general_button_width, general_button_height)
-    button_menu_exit = (window_width - general_pos, window_height - int(window_height / 10),
+    button_menu_exit = (general_pos, window_height - int(window_height / 10),
                         general_button_width, general_button_height)
+    button_scales_toggle = (general_pos, (button_menu_exit[1] - int(general_button_gap/3) - general_button_height),
+                            general_button_width, general_button_height)
 
     buttons_font_size = int((window_width * 3) / 100)
     size_buttons_font_size = int((window_width * 3.5) / 100)
@@ -625,7 +638,7 @@ def initialize_globals():
     | initialize globals flags.
     """
     global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
-        exit_clicked, mark_incorrect, num_to_find, load_user_sudoku
+        exit_clicked, mark_incorrect, num_to_find, load_user_sudoku, scale_toggle
     size_9 = True
     difficulty_pick = False
     user_input_menu = False
@@ -634,6 +647,7 @@ def initialize_globals():
     mark_incorrect = False
     num_to_find = 0
     load_user_sudoku = None
+    scale_toggle = True
 
 
 def get_key(event):
@@ -767,19 +781,20 @@ def fix_resize_scale(width):
     return width, height
 
 
-def window_resize_event_handler(event):
+def window_resize_event_handler(width, height):
     """
     | resize the window and the grid
-    :param event: pygame.event object
+    :param width: new window width
+    :param height: new window height
     """
-    width, height = event.w, event.h
     if height != window_height and width == window_width:
         width = int(height * 1.25)
     elif width != window_width and height == window_height:
         height = int(width/1.25)
     else:
         height = int(width/1.25)
-    # width, height = fix_resize_scale(width)
+    if scale_toggle:
+        width, height = fix_resize_scale(width)
 
     windows_board_resize(width, height)
 
@@ -827,7 +842,7 @@ def game_loop():
                     click_buttons(pos)
 
             if event.type == pygame.VIDEORESIZE:
-                window_resize_event_handler(event)
+                window_resize_event_handler(event.w, event.h)
 
         if exit_clicked:
             break
