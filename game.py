@@ -60,18 +60,19 @@ class Puzzle:
         """
         | draw the grid lines of the board and then send to draw cube one by one
         """
-        gap = self.board_width // self.size
+        gap = int(self.board_width // self.size)
+        board_max = gap * self.size
         for i in range(self.size + 1):
             if i in range(0, self.size + 1, self.number_of_squares):
                 thick = 4
             else:
                 thick = 1
             pos = i * gap
-            pygame.draw.line(window, (0, 0, 0), (0, pos), (self.board_width, pos), thick)
-            pygame.draw.line(window, (0, 0, 0), (pos, 0), (pos, self.board_height), thick)
+            pygame.draw.line(window, (0, 0, 0), (0, pos), (board_max, pos), thick)
+            pygame.draw.line(window, (0, 0, 0), (pos, 0), (pos, board_max), thick)
             # add lower border at the bottom of the board
             if i == self.size:
-                pygame.draw.line(window, (0, 0, 0), (0, pos - 4), (self.board_width, pos - 4), thick)
+                pygame.draw.line(window, (0, 0, 0), (0, pos - 4), (board_max, pos - 4), thick)
 
         for row in range(self.size):
             for col in range(self.size):
@@ -84,7 +85,7 @@ class Puzzle:
         :return: [row. col] clicked in the board
         """
         if pos[0] < self.board_width and pos[1] < self.board_height:
-            gap = self.board_width / self.size
+            gap = int(self.board_width / self.size)
             x = pos[0] // gap
             y = pos[1] // gap
             return int(y), int(x)
@@ -187,7 +188,7 @@ class Cube:
         self.col = col
         self.base = True if val != 0 else False
         self.correct_val = correct_val
-        self.cube_width = board_width // size
+        self.cube_width = int(board_width // size)
         self.size = size
         self.selected = False
         if self.val == 0:
@@ -586,8 +587,8 @@ def initialize_globals_sizes(width=900, height=720):
         num_font, num_font_small
     # ratio 1.25, width = 1.25 * height
     # width need to be in jumps of 100
-    # window_width = 1000
-    # window_height = 800
+    # window_width = 1200
+    # window_height = 960
     window_width = width
     window_height = height
 
@@ -746,18 +747,18 @@ def fix_resize_scale(width):
     :return: width, height - new window scale
     """
     height = 0
-    scales = [[900, 720], [1000, 800], [1100, 880]]
-    if width < 900:
+    scales = [[900, 720], [1000, 800], [1100, 880], [1200, 960]]
+    if width < scales[0][0]:
         width, height = scales[0]
-    elif width > 1100:
-        width, height = scales[2]
+    elif width > scales[-1][0]:
+        width, height = scales[3]
     else:
         if window_width < width:
             increase = True
         else:
             increase = False
         i = 0
-        while i < 2:
+        while i < 3:
             scale_test = scales[i][0], scales[i + 1][0]
             if scale_test[0] <= width <= scale_test[1]:
                 if increase:
@@ -777,7 +778,11 @@ def window_resize_event_handler(event):
     width, height = event.w, event.h
     if height != window_height and width == window_width:
         width = int(height * 1.25)
-    width, height = fix_resize_scale(width)
+    elif width != window_width and height == window_height:
+        height = int(width/1.25)
+    else:
+        height = int(width/1.25)
+    # width, height = fix_resize_scale(width)
 
     windows_board_resize(width, height)
 
