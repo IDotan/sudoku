@@ -1,6 +1,6 @@
 # Sudoku game and solver
-Small and easy to use sudoku game and solver. Infinite number of puzzles to solve with 3 difficulties.
-You can enter your on sudoku and keep solving it in the application.  
+Small and easy to use sudoku game and solver. Infinite number of puzzles to solve with 3 difficulties.  
+Can enter your on sudoku and keep solving it in the application.  
 
 ### Highlights:
 * Endless random sudoku puzzles.
