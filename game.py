@@ -72,7 +72,7 @@ class Puzzle:
             pygame.draw.line(window, (0, 0, 0), (pos, 0), (pos, board_max), thick)
             # add lower border at the bottom of the board
             if i == self.size:
-                pygame.draw.line(window, (0, 0, 0), (0, pos - 4), (board_max, pos - 4), thick)
+                pygame.draw.line(window, (0, 0, 0), (0, pos - 2), (board_max, pos - 2), thick)
 
         for row in range(self.size):
             for col in range(self.size):
