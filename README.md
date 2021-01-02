@@ -7,6 +7,7 @@ Can enter your on sudoku and keep solving it in the application.
 * Auto save and load incomplete sudoku.
 * Can play and enter 9x9 and 16x16 sized sudoku.
 * Toggle on/off marking mistakes.
+* Scalable to any size. Using preset or free scales.
 
 <img src="example.gif" height="400" />  
 
