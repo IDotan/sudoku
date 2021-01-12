@@ -1,5 +1,5 @@
 """
-| gamepy module for the sudoku game
+| pygame module for the sudoku game
 """
 import sudoku
 from copy import deepcopy
@@ -379,7 +379,10 @@ def draw_user_input_menu():
     | draw user input menu and unsolvable 'tag' when needed
     """
     if user_input_menu_unsolvable:
-        draw_menu_button('unsolvable', (window_width - 165, 120, 130, 40), (255, 0, 0), width=5)
+        draw_menu_button('unsolvable', (int(window_width - (window_width * 17)/100),
+                                        int((window_height * 16)/100),
+                                        int((window_width * 14)/100),
+                                        int((window_height * 5)/100)), (255, 0, 0), width=5)
     draw_menu_button('Lock In', button_menu_1)
     draw_menu_button('Restart', button_menu_2)
     draw_menu_button('Cancel', button_menu_3)
