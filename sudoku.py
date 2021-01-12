@@ -191,15 +191,21 @@ def random_num_list(size):
     return num_list
 
 
-def modular_solve(grid, size, number_of_squares, num_list=None):
+def modular_solve(grid, size, number_of_squares, num_list=None, board=None):
     """
     | solve given sudoku board.
     :param grid: grid to try to solve.
     :param size: the sudoku row and column length (9/16...).
     :param number_of_squares: the number of square a row/column of the bord is split to (3/4...).
     :param num_list: possible numbers on the board. default None.
+    :param board: Puzzle object from game.py to update the display
     :return: grid when solved, False when there is no solution.
     """
+    def update(val):
+        board.cubes[row][col].set_val(val)
+        board.cubes[row][col].draw_cube()
+        board.cubes[row][col].update_cube()
+
     if num_list is None:
         num_list = random_num_list(size)
 
@@ -209,9 +215,13 @@ def modular_solve(grid, size, number_of_squares, num_list=None):
                 for value in num_list:
                     if modular_is_possible(grid, row, col, value, size, number_of_squares):
                         grid[row][col] = value
-                        if modular_solve(grid, size, number_of_squares, num_list):
+                        if board is not None:
+                            update(value)
+                        if modular_solve(grid, size, number_of_squares, num_list, board=board):
                             return grid
                         grid[row][col] = 0
+                        if board is not None:
+                            update(0)
                 return False
     return True
 

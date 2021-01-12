@@ -275,11 +275,15 @@ class Cube:
 
     def update_cube(self):
         """
-        | update visually the cube
+        | update the cube visually
         """
-        self.draw_cube()
         x = self.col * self.cube_width
         y = self.row * self.cube_width
+
+        clear_size = [(window_height * 0.5 / 100), (window_height * 1 / 100)]
+        window.fill((243, 243, 243), pygame.Rect(x + clear_size[0], y + clear_size[0], self.cube_width - clear_size[1],
+                                                 self.cube_width - clear_size[1]))
+        self.draw_cube()
         update = pygame.Rect(x, y, x + self.cube_width, y + self.cube_width)
         pygame.display.update(update)
 
@@ -483,6 +487,8 @@ def check_user_sudoku_input(grid, size, squares):
     solution = False
     load_user_sudoku = True
     if sudoku.check_no_duplicates(grid, squares):
+        # switch 491 and 492 to enable showing placed num when solving. 491 to show.
+        # solution = sudoku.modular_solve(deepcopy(grid), size, squares, board=board)
         solution = sudoku.modular_solve(deepcopy(grid), size, squares)
     if solution is not False:
         num_to_find = 0
@@ -698,12 +704,11 @@ def save_before_exit():
             remove('save.s')
 
 
-def delete_button_2_and_3():
+def delete_button_when_solving():
     """
     | delete buttons 2&3 from the side bar
     """
-    whitespace_buttons_buttons = button_menu_2[0] + button_menu_2[3] - button_menu_3[0]
-    delete_buttons_height = button_menu_2[3] + button_menu_3[3] + whitespace_buttons_buttons
+    delete_buttons_height = button_menu_exit[1] - button_menu_2[1]
     delete_buttons = pygame.Rect(button_menu_2[0], button_menu_2[1], button_menu_2[2], delete_buttons_height)
     pygame.draw.rect(window, (243, 243, 243), delete_buttons)
     pygame.display.update(delete_buttons)
@@ -720,7 +725,7 @@ def load_user_sudoku_handler():
     t1.setDaemon(True)
     t1.start()
 
-    delete_button_2_and_3()
+    delete_button_when_solving()
 
     num = 0
     while load_user_sudoku:
