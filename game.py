@@ -9,7 +9,7 @@ from os import path, remove
 import threading
 
 global window, size_9, board, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
-    exit_clicked, mark_incorrect, num_to_find, load_user_sudoku, scale_toggle
+    exit_clicked, mark_incorrect, num_to_find, load_user_sudoku, scale_toggle, num_solving
 
 global window_width, window_height, button_9_data, button_16_data, button_menu_1, button_menu_2, button_menu_3, \
     button_menu_4, button_menu_5, button_menu_exit, buttons_font_size, size_buttons_font_size, num_font, \
@@ -389,7 +389,11 @@ def draw_user_input_menu():
                                         int((window_height * 5)/100)), (255, 0, 0), width=5)
     draw_menu_button('Lock In', button_menu_1)
     draw_menu_button('Restart', button_menu_2)
-    draw_menu_button('Cancel', button_menu_3)
+    if num_solving:
+        draw_menu_button('Showing work', button_menu_3)
+    else:
+        draw_menu_button('Hiding work', button_menu_3)
+    draw_menu_button('Cancel', button_menu_4)
 
 
 def draw_main_menu():
@@ -487,9 +491,10 @@ def check_user_sudoku_input(grid, size, squares):
     solution = False
     load_user_sudoku = True
     if sudoku.check_no_duplicates(grid, squares):
-        # switch 491 and 492 to enable showing placed num when solving. 491 to show.
-        # solution = sudoku.modular_solve(deepcopy(grid), size, squares, board=board)
-        solution = sudoku.modular_solve(deepcopy(grid), size, squares)
+        if num_solving:
+            solution = sudoku.modular_solve(deepcopy(grid), size, squares, board=board)
+        else:
+            solution = sudoku.modular_solve(deepcopy(grid), size, squares)
     if solution is not False:
         num_to_find = 0
         board = Puzzle(grid, size, squares, solution)
@@ -522,7 +527,7 @@ def menu_status_user_input(pos):
     | action to take when a button was clicked in the user sudoku input menu
     :param pos: position of the click. [x,y]
     """
-    global user_input_menu, board, user_input_menu_unsolvable
+    global user_input_menu, user_input_menu_unsolvable, num_solving
     if check_button_clicked(button_menu_1, pos):
         menu_status_user_input_lock_clicked()
     elif check_button_clicked(button_menu_2, pos):
@@ -530,6 +535,11 @@ def menu_status_user_input(pos):
         user_input_menu_unsolvable = False
         return
     elif check_button_clicked(button_menu_3, pos):
+        if num_solving is True:
+            num_solving = False
+        else:
+            num_solving = True
+    elif check_button_clicked(button_menu_4, pos):
         user_input_menu = False
         user_input_menu_unsolvable = False
 
@@ -646,8 +656,8 @@ def initialize_globals():
     """
     | initialize globals flags.
     """
-    global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, \
-        exit_clicked, mark_incorrect, num_to_find, load_user_sudoku, scale_toggle
+    global size_9, difficulty_pick, user_input_menu, user_input_menu_unsolvable, exit_clicked, mark_incorrect, \
+        num_to_find, load_user_sudoku, scale_toggle, num_solving
     size_9 = True
     difficulty_pick = False
     user_input_menu = False
@@ -657,6 +667,7 @@ def initialize_globals():
     num_to_find = 0
     load_user_sudoku = None
     scale_toggle = True
+    num_solving = False
 
 
 def get_key(event):
