@@ -22,8 +22,7 @@ solution = [
     [2, 8, 9, 7, 5, 3, 1, 6, 4],
     [1, 6, 7, 2, 4, 9, 5, 8, 3]
 ]
-game.initialize_globals()
-game.initialize_globals_sizes()
+
 test = game.Puzzle(grid, 9, 3, solution)
 
 

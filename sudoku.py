@@ -202,6 +202,10 @@ def modular_solve(grid, size, number_of_squares, num_list=None, board=None):
     :return: grid when solved, False when there is no solution.
     """
     def update(val):
+        """
+        | update pygame display while solving
+        :param val: num to update to
+        """
         board.cubes[row][col].set_val(val)
         board.cubes[row][col].draw_cube()
         board.cubes[row][col].update_cube()
