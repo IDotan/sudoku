@@ -151,7 +151,6 @@ def remove_numbers(grid, size, number_of_squares, attempts=5):
             grid[row][col] = backup
             attempts -= 1
             removed_count -= 1
-    print(removed_count)
     return grid
 
 
