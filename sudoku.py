@@ -130,9 +130,7 @@ def remove_numbers(grid, size, number_of_squares, attempts=5):
     remove_dict = {3: 25, 5: 40, 7: 50, 6: 60, 10: 85, 14: 120}
     remove_cap = remove_dict[attempts]
     removed_count = 0
-    while attempts > 0:
-        if removed_count == remove_cap:
-            break
+    while attempts > 0 and removed_count != remove_cap:
         # Select a random cell that is not already empty
         row = randint(0, max_range)
         col = randint(0, max_range)
@@ -153,6 +151,7 @@ def remove_numbers(grid, size, number_of_squares, attempts=5):
             grid[row][col] = backup
             attempts -= 1
             removed_count -= 1
+    print(removed_count)
     return grid
 
 
